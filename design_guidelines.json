@@ -1,0 +1,98 @@
+{
+  "theme": "light",
+  "archetype": "3 (Pastel & Soft) mixed with Neo-Brutalist (Professional & Funky)",
+  "colors": {
+    "background": "#FAFAFA",
+    "surface": "#FFFFFF",
+    "primary": "#FFE45E",
+    "primary_foreground": "#0F0F0F",
+    "secondary": "#A8C6F7",
+    "secondary_foreground": "#0F0F0F",
+    "border": "#0F0F0F",
+    "text_main": "#0F0F0F",
+    "text_muted": "#525252",
+    "module_accents": {
+      "brd": "#A8E6CF",
+      "sop": "#FFD3B6",
+      "user_story": "#A8C6F7",
+      "test_case": "#FFE45E"
+    }
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Outfit, sans-serif",
+      "body": "DM Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-black tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-bold",
+      "body": "text-base leading-relaxed",
+      "label": "text-xs font-bold uppercase tracking-[0.2em]"
+    }
+  },
+  "spacing_and_layout": {
+    "padding": "p-6 md:p-8",
+    "gap": "gap-6 md:gap-8",
+    "radius": "rounded-xl",
+    "container": "max-w-7xl mx-auto"
+  },
+  "surfaces_and_borders": {
+    "card": "bg-white border-2 border-[#0F0F0F] rounded-xl shadow-[4px_4px_0px_0px_rgba(15,15,15,1)]",
+    "card_hover": "hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(15,15,15,1)] transition-all duration-200",
+    "input": "bg-white border-2 border-[#0F0F0F] rounded-lg shadow-[2px_2px_0px_0px_rgba(15,15,15,1)] focus:outline-none focus:ring-2 focus:ring-[#FFE45E] focus:border-[#0F0F0F]",
+    "button_primary": "bg-[#FFE45E] text-[#0F0F0F] font-bold border-2 border-[#0F0F0F] rounded-lg shadow-[4px_4px_0px_0px_rgba(15,15,15,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(15,15,15,1)] active:translate-y-0 active:shadow-[0px_0px_0px_0px_rgba(15,15,15,1)] transition-all duration-200"
+  },
+  "motion": {
+    "hover_lift": "hover:-translate-y-1 transition-transform duration-200 ease-out",
+    "page_enter": "animate-in fade-in slide-in-from-bottom-4 duration-500",
+    "stagger_children": "delay-[50ms]"
+  },
+  "icons": {
+    "library": "lucide-react",
+    "style": "stroke-[2.5px] text-[#0F0F0F]"
+  },
+  "components": {
+    "navigation": "Sticky top-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-xl border-b-2 border-[#0F0F0F]",
+    "sidebar": "Fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-[#0F0F0F]",
+    "module_card": "Use surfaces_and_borders.card. Add a colorful geometric shape (using module_accents) in the top right corner as a decorative element.",
+    "document_viewer": "White background, standard HTML prose formatting, but with custom border-l-4 border-l-[#FFE45E] for blockquotes.",
+    "forms": "Use Shadcn components, but override border, radius, and shadow classes to match neo-brutalist style."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMHBhc3RlbCUyMDNkJTIwc2hhcGVzfGVufDB8fHx8MTc4MTQyMjk5M3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract geometric 3D shapes (blue and white)",
+        "category": "background_accent",
+        "usage": "Use as a decorative floating element or background graphic in the hero or empty states."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1710244182004-1c708b3f146d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGdlb21ldHJpYyUyMHBhc3RlbCUyMDNkJTIwc2hhcGVzfGVufDB8fHx8MTc4MTQyMjk5M3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract geometric 3D shapes (yellow ball and pink)",
+        "category": "hero_graphic",
+        "usage": "Use in onboarding or login screen to add a funky, modern vibe."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMGF2YXRhciUyMHBvcnRyYWl0fGVufDB8fHx8MTc4MTQyMjk5M3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Business Professional Avatar",
+        "category": "user_avatar",
+        "usage": "Use as the placeholder user profile picture in the top navigation or sidebar."
+      }
+    ]
+  },
+  "accessibility_and_testing": {
+    "contrast": "Ensure text over pastel backgrounds meets APCA guidelines. Use text-[#0F0F0F] for all body copy.",
+    "testing_attributes": "All interactive elements MUST include data-testid. Example: data-testid='generate-brd-button'"
+  },
+  "instructions_to_main_agent": [
+    "Build a React/Vite application using Tailwind CSS and Shadcn UI primitives.",
+    "Override default Shadcn styles to apply the neo-brutalist theme defined in 'surfaces_and_borders'. Every card, input, and button must have thick #0F0F0F borders and sharp shadows.",
+    "Implement the Dashboard with 4 distinct module cards for BRD, SOP, User Story, and Test Case generation.",
+    "Ensure 'Outfit' font is used for all headings and 'DM Sans' for body text.",
+    "In the Document Viewer, implement rich text formatting and a 'Quality Score' gauge.",
+    "Ensure the layout is fully responsive, prioritizing mobile-first grids.",
+    "Add data-testid attributes to all buttons, inputs, and major containers."
+  ]
+}

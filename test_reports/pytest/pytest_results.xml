@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="14" skipped="0" tests="28" time="360.358" timestamp="2026-06-16T09:52:27.921339+00:00" hostname="agent-env-273d07eb-7d10-4592-aa12-3b4c18d2a7fd"><testcase classname="backend.tests.test_documind.TestCatalog" name="test_root" time="0.121" /><testcase classname="backend.tests.test_documind.TestCatalog" name="test_catalog" time="0.048" /><testcase classname="backend.tests.test_documind.TestCatalog" name="test_stats" time="0.051" /><testcase classname="backend.tests.test_documind.TestCompleteness" name="test_partial_inputs" time="17.960" /><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_01_generate_user_story" time="60.044"><failure message="AssertionError: &lt;!DOCTYPE html&gt;&#10;  &lt;!--[if lt IE 7]&gt; &lt;html class=&quot;no-js ie6 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if IE 7]&gt;    &lt;html class=&quot;no-js ie7 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if IE 8]&gt;    &lt;html class=&quot;no-js ie8 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class=&quot;no-js&quot; lang=&quot;en-US&quot;&gt; &lt;!--&lt;![endif]--&gt;&#10;  &lt;head&gt;&#10;  &#10;  &lt;title&gt;preview.emergentagent.com | 502: Bad gateway&lt;/title&gt;&#10;  &lt;meta charset=&quot;UTF-8&quot; /&gt;&#10;  &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;&#10;  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=Edge&quot; /&gt;&#10;  &lt;meta name=&quot;robots&quot; content=&quot;noindex, nofollow&quot; /&gt;&#10;  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot; /&gt;&#10;  &lt;link rel=&quot;stylesheet&quot; id=&quot;cf_styles-css&quot; href=&quot;/cdn-cgi/styles/main.css&quot; /&gt;&#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;  &lt;div id=&quot;cf-wrapper&quot;&gt;&#10;      &lt;div id=&quot;cf-error-details&quot; class=&quot;p-0&quot;&gt;&#10;          &lt;header class=&quot;mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8&quot;&gt;&#10;              &lt;h1 class=&quot;inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2&quot;&gt;&#10;                  &lt;span class=&quot;inline-block&quot;&gt;Bad gateway&lt;/span&gt;&#10;                  &lt;span class=&quot;code-label&quot;&gt;Error code 502&lt;/span&gt;&#10;              &lt;/h1&gt;&#10;              &lt;div&gt;&#10;                  Visit &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;cloudflare.com&lt;/a&gt; for more information.&#10;              &lt;/div&gt;&#10;              &lt;div class=&quot;mt-3&quot;&gt;2026-06-16 09:53:46 UTC&lt;/div&gt;&#10;          &lt;/header&gt;&#10;          &lt;div class=&quot;my-8 bg-gradient-gray&quot;&gt;&#10;              &lt;div class=&quot;w-240 lg:w-full mx-auto&quot;&gt;&#10;                  &lt;div class=&quot;clearfix md:px-8&quot;&gt;&#10;                      &lt;div id=&quot;cf-browser-status&quot; class=&quot; relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &#10;      &lt;span class=&quot;cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;You&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &#10;      Browser&#10;    &#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-green-success&quot;&gt;Working&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                      &lt;div id=&quot;cf-cloudflare-status&quot; class=&quot; relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&#10;      &lt;span class=&quot;cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &lt;/a&gt;&#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;Chicago&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&#10;      Cloudflare&#10;    &lt;/a&gt;&#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-green-success&quot;&gt;Working&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                      &lt;div id=&quot;cf-host-status&quot; class=&quot;cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &#10;      &lt;span class=&quot;cf-icon-server block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;docgen-pro-20.cluster-3.preview.emergentcf.cloud&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &#10;      Host&#10;    &#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-red-error&quot;&gt;Error&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                  &lt;/div&gt;&#10;              &lt;/div&gt;&#10;          &lt;/div&gt;&#10;  &#10;          &lt;div class=&quot;w-240 lg:w-full mx-auto mb-8 lg:px-8&quot;&gt;&#10;              &lt;div class=&quot;clearfix&quot;&gt;&#10;                  &lt;div class=&quot;w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed&quot;&gt;&#10;                      &lt;h2 class=&quot;text-3xl font-normal leading-1.3 mb-4&quot;&gt;What happened?&lt;/h2&gt;&#10;                      &lt;p&gt;The web server reported a bad gateway error.&lt;/p&gt;&#10;                  &lt;/div&gt;&#10;                  &lt;div class=&quot;w-1/2 md:w-full float-left leading-relaxed&quot;&gt;&#10;                      &lt;h2 class=&quot;text-3xl font-normal leading-1.3 mb-4&quot;&gt;What can I do?&lt;/h2&gt;&#10;                      &lt;p class=&quot;mb-6&quot;&gt;Please try again in a few minutes.&lt;/p&gt;&#10;                  &lt;/div&gt;&#10;              &lt;/div&gt;&#10;          &lt;/div&gt;&#10;  &#10;          &lt;div class=&quot;cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300&quot;&gt;&#10;      &lt;p class=&quot;text-13&quot;&gt;&#10;        &lt;span class=&quot;cf-footer-item sm:block sm:mb-1&quot;&gt;Cloudflare Ray ID: &lt;strong class=&quot;font-semibold&quot;&gt;a0c8ec705c41ff5b&lt;/strong&gt;&lt;/span&gt;&#10;        &lt;span class=&quot;cf-footer-separator sm:hidden&quot;&gt;&amp;bull;&lt;/span&gt;&#10;        &lt;span id=&quot;cf-footer-item-ip&quot; class=&quot;cf-footer-item hidden sm:block sm:mb-1&quot;&gt;&#10;          Your IP:&#10;          &lt;button type=&quot;button&quot; id=&quot;cf-footer-ip-reveal&quot; class=&quot;cf-footer-ip-reveal-btn&quot;&gt;Click to reveal&lt;/button&gt;&#10;          &lt;span class=&quot;hidden&quot; id=&quot;cf-footer-ip&quot;&gt;34.170.12.145&lt;/span&gt;&#10;          &lt;span class=&quot;cf-footer-separator sm:hidden&quot;&gt;&amp;bull;&lt;/span&gt;&#10;        &lt;/span&gt;&#10;        &lt;span class=&quot;cf-footer-item sm:block sm:mb-1&quot;&gt;&lt;span&gt;Performance &amp;amp; security by&lt;/span&gt; &lt;a rel=&quot;noopener noreferrer&quot; href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; id=&quot;brand_link&quot; target=&quot;_blank&quot;&gt;Cloudflare&lt;/a&gt;&lt;/span&gt;&#10;        &#10;      &lt;/p&gt;&#10;      &lt;script&gt;(function(){function d(){var b=a.getElementById(&quot;cf-footer-item-ip&quot;),c=a.getElementById(&quot;cf-footer-ip-reveal&quot;);b&amp;&amp;&quot;classList&quot;in b&amp;&amp;(b.classList.remove(&quot;hidden&quot;),c.addEventListener(&quot;click&quot;,function(){c.classList.add(&quot;hidden&quot;);a.getElementById(&quot;cf-footer-ip&quot;).classList.remove(&quot;hidden&quot;)}))}var a=document;document.addEventListener&amp;&amp;a.addEventListener(&quot;DOMContentLoaded&quot;,d)})();&lt;/script&gt;&#10;    &lt;/div&gt;&lt;!-- /.error-footer --&gt;&#10;  &#10;      &lt;/div&gt;&#10;  &lt;/div&gt;&#10;  &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML=&quot;window.__CF$cv$params={r:'a0c8ec7048acff5b',t:'MTc4MTYwMzU2Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);&quot;;b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;&#10;  &lt;/html&gt;&#10;assert 502 == 200&#10; +  where 502 = &lt;Response [502]&gt;.status_code">backend/tests/test_documind.py:83: in test_01_generate_user_story
+    assert r.status_code == 200, r.text
+E   AssertionError: &lt;!DOCTYPE html&gt;
+E     &lt;!--[if lt IE 7]&gt; &lt;html class="no-js ie6 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if IE 7]&gt;    &lt;html class="no-js ie7 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if IE 8]&gt;    &lt;html class="no-js ie8 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class="no-js" lang="en-US"&gt; &lt;!--&lt;![endif]--&gt;
+E     &lt;head&gt;
+E     
+E     &lt;title&gt;preview.emergentagent.com | 502: Bad gateway&lt;/title&gt;
+E     &lt;meta charset="UTF-8" /&gt;
+E     &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+E     &lt;meta http-equiv="X-UA-Compatible" content="IE=Edge" /&gt;
+E     &lt;meta name="robots" content="noindex, nofollow" /&gt;
+E     &lt;meta name="viewport" content="width=device-width,initial-scale=1" /&gt;
+E     &lt;link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/main.css" /&gt;
+E     &lt;/head&gt;
+E     &lt;body&gt;
+E     &lt;div id="cf-wrapper"&gt;
+E         &lt;div id="cf-error-details" class="p-0"&gt;
+E             &lt;header class="mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8"&gt;
+E                 &lt;h1 class="inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2"&gt;
+E                     &lt;span class="inline-block"&gt;Bad gateway&lt;/span&gt;
+E                     &lt;span class="code-label"&gt;Error code 502&lt;/span&gt;
+E                 &lt;/h1&gt;
+E                 &lt;div&gt;
+E                     Visit &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;cloudflare.com&lt;/a&gt; for more information.
+E                 &lt;/div&gt;
+E                 &lt;div class="mt-3"&gt;2026-06-16 09:53:46 UTC&lt;/div&gt;
+E             &lt;/header&gt;
+E             &lt;div class="my-8 bg-gradient-gray"&gt;
+E                 &lt;div class="w-240 lg:w-full mx-auto"&gt;
+E                     &lt;div class="clearfix md:px-8"&gt;
+E                         &lt;div id="cf-browser-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         
+E         &lt;span class="cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;You&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       
+E         Browser
+E       
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-green-success"&gt;Working&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                         &lt;div id="cf-cloudflare-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;
+E         &lt;span class="cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         &lt;/a&gt;
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;Chicago&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;
+E         Cloudflare
+E       &lt;/a&gt;
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-green-success"&gt;Working&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                         &lt;div id="cf-host-status" class="cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         
+E         &lt;span class="cf-icon-server block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;docgen-pro-20.cluster-3.preview.emergentcf.cloud&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       
+E         Host
+E       
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-red-error"&gt;Error&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                     &lt;/div&gt;
+E                 &lt;/div&gt;
+E             &lt;/div&gt;
+E     
+E             &lt;div class="w-240 lg:w-full mx-auto mb-8 lg:px-8"&gt;
+E                 &lt;div class="clearfix"&gt;
+E                     &lt;div class="w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed"&gt;
+E                         &lt;h2 class="text-3xl font-normal leading-1.3 mb-4"&gt;What happened?&lt;/h2&gt;
+E                         &lt;p&gt;The web server reported a bad gateway error.&lt;/p&gt;
+E                     &lt;/div&gt;
+E                     &lt;div class="w-1/2 md:w-full float-left leading-relaxed"&gt;
+E                         &lt;h2 class="text-3xl font-normal leading-1.3 mb-4"&gt;What can I do?&lt;/h2&gt;
+E                         &lt;p class="mb-6"&gt;Please try again in a few minutes.&lt;/p&gt;
+E                     &lt;/div&gt;
+E                 &lt;/div&gt;
+E             &lt;/div&gt;
+E     
+E             &lt;div class="cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300"&gt;
+E         &lt;p class="text-13"&gt;
+E           &lt;span class="cf-footer-item sm:block sm:mb-1"&gt;Cloudflare Ray ID: &lt;strong class="font-semibold"&gt;a0c8ec705c41ff5b&lt;/strong&gt;&lt;/span&gt;
+E           &lt;span class="cf-footer-separator sm:hidden"&gt;&amp;bull;&lt;/span&gt;
+E           &lt;span id="cf-footer-item-ip" class="cf-footer-item hidden sm:block sm:mb-1"&gt;
+E             Your IP:
+E             &lt;button type="button" id="cf-footer-ip-reveal" class="cf-footer-ip-reveal-btn"&gt;Click to reveal&lt;/button&gt;
+E             &lt;span class="hidden" id="cf-footer-ip"&gt;34.170.12.145&lt;/span&gt;
+E             &lt;span class="cf-footer-separator sm:hidden"&gt;&amp;bull;&lt;/span&gt;
+E           &lt;/span&gt;
+E           &lt;span class="cf-footer-item sm:block sm:mb-1"&gt;&lt;span&gt;Performance &amp;amp; security by&lt;/span&gt; &lt;a rel="noopener noreferrer" href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" id="brand_link" target="_blank"&gt;Cloudflare&lt;/a&gt;&lt;/span&gt;
+E           
+E         &lt;/p&gt;
+E         &lt;script&gt;(function(){function d(){var b=a.getElementById("cf-footer-item-ip"),c=a.getElementById("cf-footer-ip-reveal");b&amp;&amp;"classList"in b&amp;&amp;(b.classList.remove("hidden"),c.addEventListener("click",function(){c.classList.add("hidden");a.getElementById("cf-footer-ip").classList.remove("hidden")}))}var a=document;document.addEventListener&amp;&amp;a.addEventListener("DOMContentLoaded",d)})();&lt;/script&gt;
+E       &lt;/div&gt;&lt;!-- /.error-footer --&gt;
+E     
+E         &lt;/div&gt;
+E     &lt;/div&gt;
+E     &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0c8ec7048acff5b',t:'MTc4MTYwMzU2Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;
+E     &lt;/html&gt;
+E   assert 502 == 200
+E    +  where 502 = &lt;Response [502]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_02_doc_listable" time="0.104"><failure message="AssertionError: assert None in ['ec47ae2c-dbd1-4bb1-be41-b9bf9ca84b5c', '32c8e0b8-f59c-4415-9e7a-9cb89e7734ff', '1bef3fe1-0006-46b0-b138-15a432026121', '308908c5-3955-4c1f-9556-947c40e48eac', '383e82e9-8b13-477f-ac50-045b3359acfa', '4d43c805-c7a7-42a0-8fb4-3edfafa4f35b', ...]&#10; +  where None = TestGenerationLifecycle.GENERATED_ID">backend/tests/test_documind.py:98: in test_02_doc_listable
+    assert TestGenerationLifecycle.GENERATED_ID in ids
+E   AssertionError: assert None in ['ec47ae2c-dbd1-4bb1-be41-b9bf9ca84b5c', '32c8e0b8-f59c-4415-9e7a-9cb89e7734ff', '1bef3fe1-0006-46b0-b138-15a432026121', '308908c5-3955-4c1f-9556-947c40e48eac', '383e82e9-8b13-477f-ac50-045b3359acfa', '4d43c805-c7a7-42a0-8fb4-3edfafa4f35b', ...]
+E    +  where None = TestGenerationLifecycle.GENERATED_ID</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_03_get_persisted" time="0.050"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_documind.py:103: in test_03_get_persisted
+    assert r.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_04_create_new_version" time="0.045"><failure message="AssertionError: {&quot;detail&quot;:&quot;Document not found&quot;}&#10;assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_documind.py:111: in test_04_create_new_version
+    assert r.status_code == 200, r.text
+E   AssertionError: {"detail":"Document not found"}
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_05_list_versions" time="0.043"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_documind.py:120: in test_05_list_versions
+    assert r.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_06_duplicate" time="0.046"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_documind.py:129: in test_06_duplicate
+    assert r.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_07_patch" time="0.048"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_documind.py:144: in test_07_patch
+    assert r.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_08_filters" time="0.059" /><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_09_search_q" time="0.045"><failure message="assert False&#10; +  where False = any(&lt;generator object TestGenerationLifecycle.test_09_search_q.&lt;locals&gt;.&lt;genexpr&gt; at 0xff21f5e25700&gt;)">backend/tests/test_documind.py:167: in test_09_search_q
+    assert any("TEST_Updated" in t for t in titles)
+E   assert False
+E    +  where False = any(&lt;generator object TestGenerationLifecycle.test_09_search_q.&lt;locals&gt;.&lt;genexpr&gt; at 0xff21f5e25700&gt;)</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_10_improve_section" time="0.043"><failure message="KeyError: 'content'">backend/tests/test_documind.py:172: in test_10_improve_section
+    original_sections = r.json()["content"]["sections"]
+                        ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'content'</failure></testcase><testcase classname="backend.tests.test_documind.TestGenerationLifecycle" name="test_11_delete" time="0.046"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">backend/tests/test_documind.py:193: in test_11_delete
+    assert r.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestPipeline" name="test_pipeline_brd_to_frd" time="60.045"><failure message="AssertionError: &lt;!DOCTYPE html&gt;&#10;  &lt;!--[if lt IE 7]&gt; &lt;html class=&quot;no-js ie6 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if IE 7]&gt;    &lt;html class=&quot;no-js ie7 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if IE 8]&gt;    &lt;html class=&quot;no-js ie8 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class=&quot;no-js&quot; lang=&quot;en-US&quot;&gt; &lt;!--&lt;![endif]--&gt;&#10;  &lt;head&gt;&#10;  &#10;  &lt;title&gt;preview.emergentagent.com | 502: Bad gateway&lt;/title&gt;&#10;  &lt;meta charset=&quot;UTF-8&quot; /&gt;&#10;  &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;&#10;  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=Edge&quot; /&gt;&#10;  &lt;meta name=&quot;robots&quot; content=&quot;noindex, nofollow&quot; /&gt;&#10;  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot; /&gt;&#10;  &lt;link rel=&quot;stylesheet&quot; id=&quot;cf_styles-css&quot; href=&quot;/cdn-cgi/styles/main.css&quot; /&gt;&#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;  &lt;div id=&quot;cf-wrapper&quot;&gt;&#10;      &lt;div id=&quot;cf-error-details&quot; class=&quot;p-0&quot;&gt;&#10;          &lt;header class=&quot;mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8&quot;&gt;&#10;              &lt;h1 class=&quot;inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2&quot;&gt;&#10;                  &lt;span class=&quot;inline-block&quot;&gt;Bad gateway&lt;/span&gt;&#10;                  &lt;span class=&quot;code-label&quot;&gt;Error code 502&lt;/span&gt;&#10;              &lt;/h1&gt;&#10;              &lt;div&gt;&#10;                  Visit &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;cloudflare.com&lt;/a&gt; for more information.&#10;              &lt;/div&gt;&#10;              &lt;div class=&quot;mt-3&quot;&gt;2026-06-16 09:54:46 UTC&lt;/div&gt;&#10;          &lt;/header&gt;&#10;          &lt;div class=&quot;my-8 bg-gradient-gray&quot;&gt;&#10;              &lt;div class=&quot;w-240 lg:w-full mx-auto&quot;&gt;&#10;                  &lt;div class=&quot;clearfix md:px-8&quot;&gt;&#10;                      &lt;div id=&quot;cf-browser-status&quot; class=&quot; relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &#10;      &lt;span class=&quot;cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;You&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &#10;      Browser&#10;    &#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-green-success&quot;&gt;Working&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                      &lt;div id=&quot;cf-cloudflare-status&quot; class=&quot; relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&#10;      &lt;span class=&quot;cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &lt;/a&gt;&#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;Chicago&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&#10;      Cloudflare&#10;    &lt;/a&gt;&#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-green-success&quot;&gt;Working&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                      &lt;div id=&quot;cf-host-status&quot; class=&quot;cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &#10;      &lt;span class=&quot;cf-icon-server block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;docgen-pro-20.cluster-3.preview.emergentcf.cloud&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &#10;      Host&#10;    &#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-red-error&quot;&gt;Error&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                  &lt;/div&gt;&#10;              &lt;/div&gt;&#10;          &lt;/div&gt;&#10;  &#10;          &lt;div class=&quot;w-240 lg:w-full mx-auto mb-8 lg:px-8&quot;&gt;&#10;              &lt;div class=&quot;clearfix&quot;&gt;&#10;                  &lt;div class=&quot;w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed&quot;&gt;&#10;                      &lt;h2 class=&quot;text-3xl font-normal leading-1.3 mb-4&quot;&gt;What happened?&lt;/h2&gt;&#10;                      &lt;p&gt;The web server reported a bad gateway error.&lt;/p&gt;&#10;                  &lt;/div&gt;&#10;                  &lt;div class=&quot;w-1/2 md:w-full float-left leading-relaxed&quot;&gt;&#10;                      &lt;h2 class=&quot;text-3xl font-normal leading-1.3 mb-4&quot;&gt;What can I do?&lt;/h2&gt;&#10;                      &lt;p class=&quot;mb-6&quot;&gt;Please try again in a few minutes.&lt;/p&gt;&#10;                  &lt;/div&gt;&#10;              &lt;/div&gt;&#10;          &lt;/div&gt;&#10;  &#10;          &lt;div class=&quot;cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300&quot;&gt;&#10;      &lt;p class=&quot;text-13&quot;&gt;&#10;        &lt;span class=&quot;cf-footer-item sm:block sm:mb-1&quot;&gt;Cloudflare Ray ID: &lt;strong class=&quot;font-semibold&quot;&gt;a0c8edebbaceff5b&lt;/strong&gt;&lt;/span&gt;&#10;        &lt;span class=&quot;cf-footer-separator sm:hidden&quot;&gt;&amp;bull;&lt;/span&gt;&#10;        &lt;span id=&quot;cf-footer-item-ip&quot; class=&quot;cf-footer-item hidden sm:block sm:mb-1&quot;&gt;&#10;          Your IP:&#10;          &lt;button type=&quot;button&quot; id=&quot;cf-footer-ip-reveal&quot; class=&quot;cf-footer-ip-reveal-btn&quot;&gt;Click to reveal&lt;/button&gt;&#10;          &lt;span class=&quot;hidden&quot; id=&quot;cf-footer-ip&quot;&gt;34.170.12.145&lt;/span&gt;&#10;          &lt;span class=&quot;cf-footer-separator sm:hidden&quot;&gt;&amp;bull;&lt;/span&gt;&#10;        &lt;/span&gt;&#10;        &lt;span class=&quot;cf-footer-item sm:block sm:mb-1&quot;&gt;&lt;span&gt;Performance &amp;amp; security by&lt;/span&gt; &lt;a rel=&quot;noopener noreferrer&quot; href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; id=&quot;brand_link&quot; target=&quot;_blank&quot;&gt;Cloudflare&lt;/a&gt;&lt;/span&gt;&#10;        &#10;      &lt;/p&gt;&#10;      &lt;script&gt;(function(){function d(){var b=a.getElementById(&quot;cf-footer-item-ip&quot;),c=a.getElementById(&quot;cf-footer-ip-reveal&quot;);b&amp;&amp;&quot;classList&quot;in b&amp;&amp;(b.classList.remove(&quot;hidden&quot;),c.addEventListener(&quot;click&quot;,function(){c.classList.add(&quot;hidden&quot;);a.getElementById(&quot;cf-footer-ip&quot;).classList.remove(&quot;hidden&quot;)}))}var a=document;document.addEventListener&amp;&amp;a.addEventListener(&quot;DOMContentLoaded&quot;,d)})();&lt;/script&gt;&#10;    &lt;/div&gt;&lt;!-- /.error-footer --&gt;&#10;  &#10;      &lt;/div&gt;&#10;  &lt;/div&gt;&#10;  &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML=&quot;window.__CF$cv$params={r:'a0c8edebae01ff5b',t:'MTc4MTYwMzYyNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);&quot;;b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;&#10;  &lt;/html&gt;&#10;assert 502 == 200&#10; +  where 502 = &lt;Response [502]&gt;.status_code">backend/tests/test_documind.py:218: in test_pipeline_brd_to_frd
+    assert r.status_code == 200, r.text
+E   AssertionError: &lt;!DOCTYPE html&gt;
+E     &lt;!--[if lt IE 7]&gt; &lt;html class="no-js ie6 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if IE 7]&gt;    &lt;html class="no-js ie7 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if IE 8]&gt;    &lt;html class="no-js ie8 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class="no-js" lang="en-US"&gt; &lt;!--&lt;![endif]--&gt;
+E     &lt;head&gt;
+E     
+E     &lt;title&gt;preview.emergentagent.com | 502: Bad gateway&lt;/title&gt;
+E     &lt;meta charset="UTF-8" /&gt;
+E     &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+E     &lt;meta http-equiv="X-UA-Compatible" content="IE=Edge" /&gt;
+E     &lt;meta name="robots" content="noindex, nofollow" /&gt;
+E     &lt;meta name="viewport" content="width=device-width,initial-scale=1" /&gt;
+E     &lt;link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/main.css" /&gt;
+E     &lt;/head&gt;
+E     &lt;body&gt;
+E     &lt;div id="cf-wrapper"&gt;
+E         &lt;div id="cf-error-details" class="p-0"&gt;
+E             &lt;header class="mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8"&gt;
+E                 &lt;h1 class="inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2"&gt;
+E                     &lt;span class="inline-block"&gt;Bad gateway&lt;/span&gt;
+E                     &lt;span class="code-label"&gt;Error code 502&lt;/span&gt;
+E                 &lt;/h1&gt;
+E                 &lt;div&gt;
+E                     Visit &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;cloudflare.com&lt;/a&gt; for more information.
+E                 &lt;/div&gt;
+E                 &lt;div class="mt-3"&gt;2026-06-16 09:54:46 UTC&lt;/div&gt;
+E             &lt;/header&gt;
+E             &lt;div class="my-8 bg-gradient-gray"&gt;
+E                 &lt;div class="w-240 lg:w-full mx-auto"&gt;
+E                     &lt;div class="clearfix md:px-8"&gt;
+E                         &lt;div id="cf-browser-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         
+E         &lt;span class="cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;You&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       
+E         Browser
+E       
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-green-success"&gt;Working&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                         &lt;div id="cf-cloudflare-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;
+E         &lt;span class="cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         &lt;/a&gt;
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;Chicago&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;
+E         Cloudflare
+E       &lt;/a&gt;
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-green-success"&gt;Working&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                         &lt;div id="cf-host-status" class="cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         
+E         &lt;span class="cf-icon-server block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;docgen-pro-20.cluster-3.preview.emergentcf.cloud&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       
+E         Host
+E       
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-red-error"&gt;Error&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                     &lt;/div&gt;
+E                 &lt;/div&gt;
+E             &lt;/div&gt;
+E     
+E             &lt;div class="w-240 lg:w-full mx-auto mb-8 lg:px-8"&gt;
+E                 &lt;div class="clearfix"&gt;
+E                     &lt;div class="w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed"&gt;
+E                         &lt;h2 class="text-3xl font-normal leading-1.3 mb-4"&gt;What happened?&lt;/h2&gt;
+E                         &lt;p&gt;The web server reported a bad gateway error.&lt;/p&gt;
+E                     &lt;/div&gt;
+E                     &lt;div class="w-1/2 md:w-full float-left leading-relaxed"&gt;
+E                         &lt;h2 class="text-3xl font-normal leading-1.3 mb-4"&gt;What can I do?&lt;/h2&gt;
+E                         &lt;p class="mb-6"&gt;Please try again in a few minutes.&lt;/p&gt;
+E                     &lt;/div&gt;
+E                 &lt;/div&gt;
+E             &lt;/div&gt;
+E     
+E             &lt;div class="cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300"&gt;
+E         &lt;p class="text-13"&gt;
+E           &lt;span class="cf-footer-item sm:block sm:mb-1"&gt;Cloudflare Ray ID: &lt;strong class="font-semibold"&gt;a0c8edebbaceff5b&lt;/strong&gt;&lt;/span&gt;
+E           &lt;span class="cf-footer-separator sm:hidden"&gt;&amp;bull;&lt;/span&gt;
+E           &lt;span id="cf-footer-item-ip" class="cf-footer-item hidden sm:block sm:mb-1"&gt;
+E             Your IP:
+E             &lt;button type="button" id="cf-footer-ip-reveal" class="cf-footer-ip-reveal-btn"&gt;Click to reveal&lt;/button&gt;
+E             &lt;span class="hidden" id="cf-footer-ip"&gt;34.170.12.145&lt;/span&gt;
+E             &lt;span class="cf-footer-separator sm:hidden"&gt;&amp;bull;&lt;/span&gt;
+E           &lt;/span&gt;
+E           &lt;span class="cf-footer-item sm:block sm:mb-1"&gt;&lt;span&gt;Performance &amp;amp; security by&lt;/span&gt; &lt;a rel="noopener noreferrer" href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" id="brand_link" target="_blank"&gt;Cloudflare&lt;/a&gt;&lt;/span&gt;
+E           
+E         &lt;/p&gt;
+E         &lt;script&gt;(function(){function d(){var b=a.getElementById("cf-footer-item-ip"),c=a.getElementById("cf-footer-ip-reveal");b&amp;&amp;"classList"in b&amp;&amp;(b.classList.remove("hidden"),c.addEventListener("click",function(){c.classList.add("hidden");a.getElementById("cf-footer-ip").classList.remove("hidden")}))}var a=document;document.addEventListener&amp;&amp;a.addEventListener("DOMContentLoaded",d)})();&lt;/script&gt;
+E       &lt;/div&gt;&lt;!-- /.error-footer --&gt;
+E     
+E         &lt;/div&gt;
+E     &lt;/div&gt;
+E     &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0c8edebae01ff5b',t:'MTc4MTYwMzYyNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;
+E     &lt;/html&gt;
+E   assert 502 == 200
+E    +  where 502 = &lt;Response [502]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestPipeline" name="test_pipeline_invalid_pairing" time="60.051"><failure message="assert 502 == 200&#10; +  where 502 = &lt;Response [502]&gt;.status_code">backend/tests/test_documind.py:245: in test_pipeline_invalid_pairing
+    assert r.status_code == 200
+E   assert 502 == 200
+E    +  where 502 = &lt;Response [502]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestInterview" name="test_01_start" time="2.887" /><testcase classname="backend.tests.test_documind.TestInterview" name="test_02_message_and_progress" time="14.756" /><testcase classname="backend.tests.test_documind.TestInterview" name="test_03_generate_from_interview" time="60.075"><failure message="AssertionError: &lt;!DOCTYPE html&gt;&#10;  &lt;!--[if lt IE 7]&gt; &lt;html class=&quot;no-js ie6 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if IE 7]&gt;    &lt;html class=&quot;no-js ie7 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if IE 8]&gt;    &lt;html class=&quot;no-js ie8 oldie&quot; lang=&quot;en-US&quot;&gt; &lt;![endif]--&gt;&#10;  &lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class=&quot;no-js&quot; lang=&quot;en-US&quot;&gt; &lt;!--&lt;![endif]--&gt;&#10;  &lt;head&gt;&#10;  &#10;  &lt;title&gt;preview.emergentagent.com | 502: Bad gateway&lt;/title&gt;&#10;  &lt;meta charset=&quot;UTF-8&quot; /&gt;&#10;  &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;&#10;  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=Edge&quot; /&gt;&#10;  &lt;meta name=&quot;robots&quot; content=&quot;noindex, nofollow&quot; /&gt;&#10;  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot; /&gt;&#10;  &lt;link rel=&quot;stylesheet&quot; id=&quot;cf_styles-css&quot; href=&quot;/cdn-cgi/styles/main.css&quot; /&gt;&#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;  &lt;div id=&quot;cf-wrapper&quot;&gt;&#10;      &lt;div id=&quot;cf-error-details&quot; class=&quot;p-0&quot;&gt;&#10;          &lt;header class=&quot;mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8&quot;&gt;&#10;              &lt;h1 class=&quot;inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2&quot;&gt;&#10;                  &lt;span class=&quot;inline-block&quot;&gt;Bad gateway&lt;/span&gt;&#10;                  &lt;span class=&quot;code-label&quot;&gt;Error code 502&lt;/span&gt;&#10;              &lt;/h1&gt;&#10;              &lt;div&gt;&#10;                  Visit &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;cloudflare.com&lt;/a&gt; for more information.&#10;              &lt;/div&gt;&#10;              &lt;div class=&quot;mt-3&quot;&gt;2026-06-16 09:57:04 UTC&lt;/div&gt;&#10;          &lt;/header&gt;&#10;          &lt;div class=&quot;my-8 bg-gradient-gray&quot;&gt;&#10;              &lt;div class=&quot;w-240 lg:w-full mx-auto&quot;&gt;&#10;                  &lt;div class=&quot;clearfix md:px-8&quot;&gt;&#10;                      &lt;div id=&quot;cf-browser-status&quot; class=&quot; relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &#10;      &lt;span class=&quot;cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;You&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &#10;      Browser&#10;    &#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-green-success&quot;&gt;Working&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                      &lt;div id=&quot;cf-cloudflare-status&quot; class=&quot; relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&#10;      &lt;span class=&quot;cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &lt;/a&gt;&#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;Chicago&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &lt;a href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;&#10;      Cloudflare&#10;    &lt;/a&gt;&#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-green-success&quot;&gt;Working&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                      &lt;div id=&quot;cf-host-status&quot; class=&quot;cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center&quot;&gt;&#10;    &lt;div class=&quot;relative mb-10 md:m-0&quot;&gt;&#10;      &#10;      &lt;span class=&quot;cf-icon-server block md:hidden h-20 bg-center bg-no-repeat&quot;&gt;&lt;/span&gt;&#10;      &lt;span class=&quot;cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4&quot;&gt;&lt;/span&gt;&#10;      &#10;    &lt;/div&gt;&#10;    &lt;span class=&quot;md:block w-full truncate&quot;&gt;docgen-pro-20.cluster-3.preview.emergentcf.cloud&lt;/span&gt;&#10;    &lt;h3 class=&quot;md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3&quot;&gt;&#10;    &#10;      Host&#10;    &#10;    &lt;/h3&gt;&#10;    &#10;    &lt;span class=&quot;leading-1.3 text-2xl text-red-error&quot;&gt;Error&lt;/span&gt;&#10;    &#10;  &lt;/div&gt;&#10;                  &lt;/div&gt;&#10;              &lt;/div&gt;&#10;          &lt;/div&gt;&#10;  &#10;          &lt;div class=&quot;w-240 lg:w-full mx-auto mb-8 lg:px-8&quot;&gt;&#10;              &lt;div class=&quot;clearfix&quot;&gt;&#10;                  &lt;div class=&quot;w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed&quot;&gt;&#10;                      &lt;h2 class=&quot;text-3xl font-normal leading-1.3 mb-4&quot;&gt;What happened?&lt;/h2&gt;&#10;                      &lt;p&gt;The web server reported a bad gateway error.&lt;/p&gt;&#10;                  &lt;/div&gt;&#10;                  &lt;div class=&quot;w-1/2 md:w-full float-left leading-relaxed&quot;&gt;&#10;                      &lt;h2 class=&quot;text-3xl font-normal leading-1.3 mb-4&quot;&gt;What can I do?&lt;/h2&gt;&#10;                      &lt;p class=&quot;mb-6&quot;&gt;Please try again in a few minutes.&lt;/p&gt;&#10;                  &lt;/div&gt;&#10;              &lt;/div&gt;&#10;          &lt;/div&gt;&#10;  &#10;          &lt;div class=&quot;cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300&quot;&gt;&#10;      &lt;p class=&quot;text-13&quot;&gt;&#10;        &lt;span class=&quot;cf-footer-item sm:block sm:mb-1&quot;&gt;Cloudflare Ray ID: &lt;strong class=&quot;font-semibold&quot;&gt;a0c8f148da0aff5b&lt;/strong&gt;&lt;/span&gt;&#10;        &lt;span class=&quot;cf-footer-separator sm:hidden&quot;&gt;&amp;bull;&lt;/span&gt;&#10;        &lt;span id=&quot;cf-footer-item-ip&quot; class=&quot;cf-footer-item hidden sm:block sm:mb-1&quot;&gt;&#10;          Your IP:&#10;          &lt;button type=&quot;button&quot; id=&quot;cf-footer-ip-reveal&quot; class=&quot;cf-footer-ip-reveal-btn&quot;&gt;Click to reveal&lt;/button&gt;&#10;          &lt;span class=&quot;hidden&quot; id=&quot;cf-footer-ip&quot;&gt;34.170.12.145&lt;/span&gt;&#10;          &lt;span class=&quot;cf-footer-separator sm:hidden&quot;&gt;&amp;bull;&lt;/span&gt;&#10;        &lt;/span&gt;&#10;        &lt;span class=&quot;cf-footer-item sm:block sm:mb-1&quot;&gt;&lt;span&gt;Performance &amp;amp; security by&lt;/span&gt; &lt;a rel=&quot;noopener noreferrer&quot; href=&quot;https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud&quot; id=&quot;brand_link&quot; target=&quot;_blank&quot;&gt;Cloudflare&lt;/a&gt;&lt;/span&gt;&#10;        &#10;      &lt;/p&gt;&#10;      &lt;script&gt;(function(){function d(){var b=a.getElementById(&quot;cf-footer-item-ip&quot;),c=a.getElementById(&quot;cf-footer-ip-reveal&quot;);b&amp;&amp;&quot;classList&quot;in b&amp;&amp;(b.classList.remove(&quot;hidden&quot;),c.addEventListener(&quot;click&quot;,function(){c.classList.add(&quot;hidden&quot;);a.getElementById(&quot;cf-footer-ip&quot;).classList.remove(&quot;hidden&quot;)}))}var a=document;document.addEventListener&amp;&amp;a.addEventListener(&quot;DOMContentLoaded&quot;,d)})();&lt;/script&gt;&#10;    &lt;/div&gt;&lt;!-- /.error-footer --&gt;&#10;  &#10;      &lt;/div&gt;&#10;  &lt;/div&gt;&#10;  &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML=&quot;window.__CF$cv$params={r:'a0c8f1489e0cff5b',t:'MTc4MTYwMzc2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);&quot;;b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;&#10;  &lt;/html&gt;&#10;assert 502 == 200&#10; +  where 502 = &lt;Response [502]&gt;.status_code">backend/tests/test_documind.py:299: in test_03_generate_from_interview
+    assert r.status_code == 200, r.text
+E   AssertionError: &lt;!DOCTYPE html&gt;
+E     &lt;!--[if lt IE 7]&gt; &lt;html class="no-js ie6 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if IE 7]&gt;    &lt;html class="no-js ie7 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if IE 8]&gt;    &lt;html class="no-js ie8 oldie" lang="en-US"&gt; &lt;![endif]--&gt;
+E     &lt;!--[if gt IE 8]&gt;&lt;!--&gt; &lt;html class="no-js" lang="en-US"&gt; &lt;!--&lt;![endif]--&gt;
+E     &lt;head&gt;
+E     
+E     &lt;title&gt;preview.emergentagent.com | 502: Bad gateway&lt;/title&gt;
+E     &lt;meta charset="UTF-8" /&gt;
+E     &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+E     &lt;meta http-equiv="X-UA-Compatible" content="IE=Edge" /&gt;
+E     &lt;meta name="robots" content="noindex, nofollow" /&gt;
+E     &lt;meta name="viewport" content="width=device-width,initial-scale=1" /&gt;
+E     &lt;link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/main.css" /&gt;
+E     &lt;/head&gt;
+E     &lt;body&gt;
+E     &lt;div id="cf-wrapper"&gt;
+E         &lt;div id="cf-error-details" class="p-0"&gt;
+E             &lt;header class="mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8"&gt;
+E                 &lt;h1 class="inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2"&gt;
+E                     &lt;span class="inline-block"&gt;Bad gateway&lt;/span&gt;
+E                     &lt;span class="code-label"&gt;Error code 502&lt;/span&gt;
+E                 &lt;/h1&gt;
+E                 &lt;div&gt;
+E                     Visit &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;cloudflare.com&lt;/a&gt; for more information.
+E                 &lt;/div&gt;
+E                 &lt;div class="mt-3"&gt;2026-06-16 09:57:04 UTC&lt;/div&gt;
+E             &lt;/header&gt;
+E             &lt;div class="my-8 bg-gradient-gray"&gt;
+E                 &lt;div class="w-240 lg:w-full mx-auto"&gt;
+E                     &lt;div class="clearfix md:px-8"&gt;
+E                         &lt;div id="cf-browser-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         
+E         &lt;span class="cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;You&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       
+E         Browser
+E       
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-green-success"&gt;Working&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                         &lt;div id="cf-cloudflare-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;
+E         &lt;span class="cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         &lt;/a&gt;
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;Chicago&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       &lt;a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" target="_blank" rel="noopener noreferrer"&gt;
+E         Cloudflare
+E       &lt;/a&gt;
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-green-success"&gt;Working&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                         &lt;div id="cf-host-status" class="cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center"&gt;
+E       &lt;div class="relative mb-10 md:m-0"&gt;
+E         
+E         &lt;span class="cf-icon-server block md:hidden h-20 bg-center bg-no-repeat"&gt;&lt;/span&gt;
+E         &lt;span class="cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"&gt;&lt;/span&gt;
+E         
+E       &lt;/div&gt;
+E       &lt;span class="md:block w-full truncate"&gt;docgen-pro-20.cluster-3.preview.emergentcf.cloud&lt;/span&gt;
+E       &lt;h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3"&gt;
+E       
+E         Host
+E       
+E       &lt;/h3&gt;
+E       
+E       &lt;span class="leading-1.3 text-2xl text-red-error"&gt;Error&lt;/span&gt;
+E       
+E     &lt;/div&gt;
+E                     &lt;/div&gt;
+E                 &lt;/div&gt;
+E             &lt;/div&gt;
+E     
+E             &lt;div class="w-240 lg:w-full mx-auto mb-8 lg:px-8"&gt;
+E                 &lt;div class="clearfix"&gt;
+E                     &lt;div class="w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed"&gt;
+E                         &lt;h2 class="text-3xl font-normal leading-1.3 mb-4"&gt;What happened?&lt;/h2&gt;
+E                         &lt;p&gt;The web server reported a bad gateway error.&lt;/p&gt;
+E                     &lt;/div&gt;
+E                     &lt;div class="w-1/2 md:w-full float-left leading-relaxed"&gt;
+E                         &lt;h2 class="text-3xl font-normal leading-1.3 mb-4"&gt;What can I do?&lt;/h2&gt;
+E                         &lt;p class="mb-6"&gt;Please try again in a few minutes.&lt;/p&gt;
+E                     &lt;/div&gt;
+E                 &lt;/div&gt;
+E             &lt;/div&gt;
+E     
+E             &lt;div class="cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300"&gt;
+E         &lt;p class="text-13"&gt;
+E           &lt;span class="cf-footer-item sm:block sm:mb-1"&gt;Cloudflare Ray ID: &lt;strong class="font-semibold"&gt;a0c8f148da0aff5b&lt;/strong&gt;&lt;/span&gt;
+E           &lt;span class="cf-footer-separator sm:hidden"&gt;&amp;bull;&lt;/span&gt;
+E           &lt;span id="cf-footer-item-ip" class="cf-footer-item hidden sm:block sm:mb-1"&gt;
+E             Your IP:
+E             &lt;button type="button" id="cf-footer-ip-reveal" class="cf-footer-ip-reveal-btn"&gt;Click to reveal&lt;/button&gt;
+E             &lt;span class="hidden" id="cf-footer-ip"&gt;34.170.12.145&lt;/span&gt;
+E             &lt;span class="cf-footer-separator sm:hidden"&gt;&amp;bull;&lt;/span&gt;
+E           &lt;/span&gt;
+E           &lt;span class="cf-footer-item sm:block sm:mb-1"&gt;&lt;span&gt;Performance &amp;amp; security by&lt;/span&gt; &lt;a rel="noopener noreferrer" href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;#38;utm_campaign=docgen-pro-20.cluster-3.preview.emergentcf.cloud" id="brand_link" target="_blank"&gt;Cloudflare&lt;/a&gt;&lt;/span&gt;
+E           
+E         &lt;/p&gt;
+E         &lt;script&gt;(function(){function d(){var b=a.getElementById("cf-footer-item-ip"),c=a.getElementById("cf-footer-ip-reveal");b&amp;&amp;"classList"in b&amp;&amp;(b.classList.remove("hidden"),c.addEventListener("click",function(){c.classList.add("hidden");a.getElementById("cf-footer-ip").classList.remove("hidden")}))}var a=document;document.addEventListener&amp;&amp;a.addEventListener("DOMContentLoaded",d)})();&lt;/script&gt;
+E       &lt;/div&gt;&lt;!-- /.error-footer --&gt;
+E     
+E         &lt;/div&gt;
+E     &lt;/div&gt;
+E     &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0c8f1489e0cff5b',t:'MTc4MTYwMzc2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;
+E     &lt;/html&gt;
+E   assert 502 == 200
+E    +  where 502 = &lt;Response [502]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestReviewer" name="test_01_upload_txt" time="22.933" /><testcase classname="backend.tests.test_documind.TestReviewer" name="test_02_list_and_get" time="0.177" /><testcase classname="backend.tests.test_documind.TestTemplates" name="test_01_upload" time="0.153" /><testcase classname="backend.tests.test_documind.TestTemplates" name="test_02_list_get_delete" time="0.086" /><testcase classname="backend.tests.test_documind.TestSettings" name="test_put_get" time="0.086" /><testcase classname="backend.tests.test_documind.TestExport" name="test_export_docx" time="60.043"><failure message="assert 502 == 200&#10; +  where 502 = &lt;Response [502]&gt;.status_code">backend/tests/test_documind.py:409: in test_export_docx
+    assert r.status_code == 200
+E   assert 502 == 200
+E    +  where 502 = &lt;Response [502]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_documind.TestNegative" name="test_unknown_type_completeness" time="0.097" /><testcase classname="backend.tests.test_documind.TestNegative" name="test_missing_doc" time="0.045" /></testsuite></testsuites>

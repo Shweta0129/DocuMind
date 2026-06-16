@@ -1,0 +1,78 @@
+{
+  "summary": "Ran 28 pytest cases against the DocuMind backend (catalog, completeness, generation lifecycle, versions, duplicate, patch, list filters, pipeline, interview, reviewer, templates, settings, export, improve, negative). 12 passed and 16 failed — every failure traces back to a single root cause: the EMERGENT_LLM_KEY monthly budget is exhausted ('Budget has been exceeded! Current cost: 2.439501, Max budget: 2.4'). Once the LLM key is refreshed, the failing tests should pass since the backend logic, persistence, routing, and 502 error-handling are otherwise wired correctly. Front-end smoke check confirmed the Dashboard loads and all 6 category data-testids (category-ba..category-hr) render.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "/api/generate, /api/pipeline/generate, /api/review/upload, /api/interview/{id}/generate, /api/documents/{id}/improve, /api/documents/{id}/versions, /api/export/docx/{id} (indirect)",
+        "issue": "All AI-backed endpoints fail with HTTP 502 because Emergent Universal LLM key monthly budget is exceeded ($2.4395 / $2.4). Backend logs show repeated `litellm.BadRequestError: Budget has been exceeded`. Long retries cause requests to also hit Cloudflare 100s ingress timeout (returning a Cloudflare 502 HTML page).",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "/api/generate",
+        "issue": "AI calls that succeed can take >100s, which exceeds Cloudflare/ingress timeout in this preview environment. Consider streaming responses or a polling/job-based pattern for long generations to avoid 5xx at the edge."
+      },
+      {
+        "endpoint": "/api/documents/{id}/versions (POST)",
+        "issue": "_next_version logic resets to 1.0 if the parent has its own version like 1.5 and there are no children — `base_versions = [parent_doc['version_number']]` then `+ ['1.0']` is appended which can pick the wrong max for non-1.x parents. Edge case only."
+      },
+      {
+        "endpoint": "/api/documents/{id}/duplicate",
+        "issue": "Inserts `_id` is not stripped from `doc` BEFORE merge — but since it was fetched with `{_id:0}` it's safe. However the duplicate also copies `inputs` and `content` by reference; for very large docs consider deep copy."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Dashboard generator cards",
+        "issue": "Generator cards rendered but have no `data-testid=\"generator-card-*\"` attribute. Only `data-testid=\"category-*\"` group containers are tagged. Will impair Playwright targeting in subsequent tests.",
+        "selector": "[data-testid^='generator-card-']",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Any flow that calls AI (Generator, Reviewer, Interview generate, Pipeline, Improve, Regenerate, New version)",
+        "issue": "All these UI flows will fail with toast/500 because the backend AI calls are blocked by the LLM budget exhaustion. UI itself is not at fault.",
+        "affected_selectors": ["generator submit", "reviewer upload", "interview generate", "pipeline run"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_documind.py",
+    "/app/backend/tests/conftest.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "TOP PRIORITY: Refresh / increase the EMERGENT_LLM_KEY budget cap (currently exceeded at $2.44/$2.40). All AI workflows are blocked until then.",
+    "After budget refresh, re-run /app/backend/tests/test_documind.py — expectation is the 16 failing tests will pass, since the backend code path is wired correctly (12/28 already pass without LLM).",
+    "Add `data-testid=\"generator-card-<key>\"` to each generator card on the Dashboard so the front-end test suite can target the 29 cards individually.",
+    "Consider switching long AI endpoints (/api/generate, /api/review/upload, /api/pipeline/generate) to an async job pattern (return 202 + poll job_id) to avoid Cloudflare 100s ingress timeout in production.",
+    "Verify _next_version handles non-1.x parents correctly (minor edge case)."
+  ],
+  "critical_code_review_comments": [
+    "server.py is ~670 lines and growing — fine for now but extract routers (documents.py, interview.py, exports.py, templates.py) when adding more.",
+    "_persist_new_document mixes parent/version resolution with persistence — readable but should ensure `parent_id` resolves to root parent if a child id is passed (currently passes child id from `versions` route, which sets `parent_id = doc.get('parent_id') or doc['id']` correctly — good).",
+    "All Mongo reads use {'_id': 0}, so ObjectId serialization is safe ✅.",
+    "Pydantic v2 ConfigDict(extra='ignore') used consistently ✅.",
+    "All endpoints prefixed with /api ✅. CORS configured from env ✅.",
+    "ai_engine: ensure JSON robustness — wrapping `_extract_json` should already strip markdown fences. Consider returning HTTP 503 (instead of 502) for budget/rate-limit errors so client can distinguish."
+  ],
+  "updated_files": [
+    "/app/backend/tests/conftest.py (new)",
+    "/app/backend/tests/test_documind.py (new)"
+  ],
+  "success_rate": {
+    "backend": "43% (12/28). All 16 failures are LLM-budget caused; non-AI infra at 100%.",
+    "frontend": "Smoke only — Dashboard + all 6 category data-testids OK."
+  },
+  "test_credentials": "Not required — app has no auth.",
+  "seed_data_creation": "Test data was prefixed with TEST_ and most cleanup steps were not reached due to LLM 502 failures; a few TEST_-prefixed templates/settings may remain in the DB.",
+  "retest_needed": true,
+  "main_agent_can_self_test": false,
+  "context_for_next_testing_agent": "Re-run `pytest /app/backend/tests/test_documind.py -v --junitxml=/app/test_reports/pytest/pytest_results.xml` AFTER the EMERGENT_LLM_KEY budget is refreshed. Tests are self-contained; the lifecycle tests share state via class-level attributes (GENERATED_ID, VERSION_ID, DUP_ID). For frontend, add `data-testid=generator-card-<key>` first, then run Playwright flows for Generator (Quick Form + Interview), Reviewer, Templates upload, Settings save, History filters, and DocumentViewer actions (Copy/PDF/DOCX/Edit/Versions/Pipeline).",
+  "rca of the issue": "Root cause: Emergent Universal LLM key has consumed $2.4395 against a $2.4 ceiling. Reproduction: hit any AI endpoint (/api/generate, /api/review/upload, etc.) — backend logs show `litellm.BadRequestError: OpenAIException - Budget has been exceeded! Current cost: 2.439501, Max budget: 2.4` and the FastAPI handler converts this into HTTP 502 (`AI generation failed`). Long retries inside litellm also cause the request to exceed Cloudflare's 100s ingress timeout, producing a Cloudflare 502 HTML page in some tests. Mitigation: refresh / raise the EMERGENT_LLM_KEY monthly budget. No code change required."
+}

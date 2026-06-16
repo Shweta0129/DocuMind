@@ -1,0 +1,259 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Fonts: Outfit (headings), DM Sans (body), JetBrains Mono (mono) ---- */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --ink: #0F0F0F;
+    --paper: #FAFAFA;
+    --surface: #FFFFFF;
+    --primary: #FFE45E;
+    --secondary: #A8C6F7;
+    --mint: #A8E6CF;
+    --peach: #FFD3B6;
+    --pink: #FFB6C1;
+    --muted: #525252;
+    --shadow: 4px 4px 0 0 var(--ink);
+    --shadow-sm: 2px 2px 0 0 var(--ink);
+    --shadow-lg: 6px 6px 0 0 var(--ink);
+}
+
+.dark {
+    --ink: #FAFAFA;
+    --paper: #0F0F0F;
+    --surface: #1A1A1A;
+    --primary: #FFE45E;
+    --secondary: #6B8FD9;
+    --mint: #5BC9A1;
+    --peach: #E89A6B;
+    --pink: #D88B97;
+    --muted: #A3A3A3;
+    --shadow: 4px 4px 0 0 var(--ink);
+    --shadow-sm: 2px 2px 0 0 var(--ink);
+    --shadow-lg: 6px 6px 0 0 var(--ink);
+}
+
+body {
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Shadcn variables — keep these so shadcn components don't break */
+@layer base {
+    :root {
+        --background: 0 0% 98%;
+        --foreground: 0 0% 6%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 6%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 6%;
+        --primary: 51 100% 68%;
+        --primary-foreground: 0 0% 6%;
+        --secondary: 218 78% 82%;
+        --secondary-foreground: 0 0% 6%;
+        --muted: 0 0% 94%;
+        --muted-foreground: 0 0% 32%;
+        --accent: 51 100% 68%;
+        --accent-foreground: 0 0% 6%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 6%;
+        --input: 0 0% 6%;
+        --ring: 51 100% 68%;
+        --radius: 0.75rem;
+    }
+    .dark {
+        --background: 0 0% 6%;
+        --foreground: 0 0% 98%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 98%;
+        --popover: 0 0% 10%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 51 100% 68%;
+        --primary-foreground: 0 0% 6%;
+        --secondary: 218 50% 64%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 0 0% 14%;
+        --muted-foreground: 0 0% 64%;
+        --accent: 51 100% 68%;
+        --accent-foreground: 0 0% 6%;
+        --destructive: 0 62% 40%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 98%;
+        --input: 0 0% 98%;
+        --ring: 51 100% 68%;
+    }
+}
+
+@layer base {
+    body {
+        font-family: 'DM Sans', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Outfit', sans-serif;
+        letter-spacing: -0.01em;
+    }
+}
+
+/* ---- Utility components ---- */
+@layer components {
+    .nb-card {
+        background-color: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 0.75rem;
+        box-shadow: var(--shadow);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .nb-card-hover:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: var(--shadow-lg);
+    }
+    .nb-input {
+        background-color: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-sm);
+        padding: 0.65rem 0.9rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--ink);
+        width: 100%;
+        outline: none;
+        transition: box-shadow .15s, transform .15s;
+    }
+    .nb-input:focus {
+        box-shadow: 3px 3px 0 0 var(--ink);
+        transform: translate(-1px, -1px);
+    }
+    .nb-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background-color: var(--primary);
+        color: #0F0F0F;
+        font-weight: 700;
+        border: 2px solid #0F0F0F;
+        border-radius: 0.5rem;
+        box-shadow: 4px 4px 0 0 #0F0F0F;
+        padding: 0.6rem 1.1rem;
+        transition: transform .15s, box-shadow .15s;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .nb-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 0 #0F0F0F;
+    }
+    .nb-btn:active {
+        transform: translate(0, 0);
+        box-shadow: 0 0 0 0 #0F0F0F;
+    }
+    .nb-btn-ghost {
+        background-color: var(--surface);
+        color: var(--ink);
+        border-color: var(--ink);
+        box-shadow: 4px 4px 0 0 var(--ink);
+    }
+    .nb-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.65rem;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: var(--surface);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .label-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+}
+
+/* ---- Document viewer typography ---- */
+.docu-prose h1 { font-size: 1.875rem; font-weight: 800; margin: 1.25rem 0 .75rem; font-family: 'Outfit', sans-serif; }
+.docu-prose h2 { font-size: 1.5rem; font-weight: 700; margin: 1.1rem 0 .65rem; font-family: 'Outfit', sans-serif; }
+.docu-prose h3 { font-size: 1.2rem; font-weight: 700; margin: 0.9rem 0 .5rem; font-family: 'Outfit', sans-serif; }
+.docu-prose p  { margin: 0.55rem 0; line-height: 1.7; }
+.docu-prose ul, .docu-prose ol { margin: 0.55rem 0 0.55rem 1.5rem; line-height: 1.7; }
+.docu-prose ul { list-style: disc; }
+.docu-prose ol { list-style: decimal; }
+.docu-prose li { margin: 0.2rem 0; }
+.docu-prose strong { font-weight: 700; }
+.docu-prose blockquote {
+    border-left: 4px solid var(--primary);
+    padding: 0.25rem 0.9rem;
+    margin: 0.85rem 0;
+    background: rgba(255, 228, 94, 0.12);
+    border-radius: 4px;
+}
+.docu-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.85rem 0;
+    border: 2px solid var(--ink);
+}
+.docu-prose th, .docu-prose td {
+    border: 1px solid var(--ink);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    font-size: 0.92rem;
+}
+.docu-prose th { background: rgba(255, 228, 94, 0.45); font-weight: 700; }
+.docu-prose code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(15, 15, 15, 0.06);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+.dark .docu-prose code { background: rgba(255, 255, 255, 0.08); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ink); border-radius: 999px; opacity: .4; }
+
+/* Animations */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .5s ease both; }
+.fade-up.delay-1 { animation-delay: .05s; }
+.fade-up.delay-2 { animation-delay: .1s; }
+.fade-up.delay-3 { animation-delay: .15s; }
+.fade-up.delay-4 { animation-delay: .2s; }
+
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+.shimmer {
+    background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.12) 50%, rgba(0,0,0,0.04) 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.4s linear infinite;
+}
+.dark .shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.06) 75%);
+    background-size: 800px 100%;
+}
+
+@keyframes blob {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(20px,-15px) scale(1.05); }
+    66% { transform: translate(-12px,10px) scale(0.95); }
+}
+.blob { animation: blob 12s ease-in-out infinite; }
