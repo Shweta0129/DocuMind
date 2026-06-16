@@ -15,22 +15,14 @@ generic prompt across document types.
 """
 from __future__ import annotations
 
-import os
 import json
 import re
-import uuid
 from typing import Dict, Any, List, Optional
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
-
-CLAUDE_MODEL = "claude-sonnet-4-5-20250929"
+import llm_client
 
 
 # ---------------- low-level helpers ----------------
-def _key() -> str:
-    return os.environ["EMERGENT_LLM_KEY"]
-
-
 def _extract_json(raw: str) -> Dict[str, Any]:
     t = raw.strip()
     if t.startswith("```"):
@@ -46,12 +38,9 @@ def _extract_json(raw: str) -> Dict[str, Any]:
 
 
 async def _call(system: str, user: str, session_id: Optional[str] = None) -> str:
-    chat = LlmChat(
-        api_key=_key(),
-        session_id=session_id or str(uuid.uuid4()),
-        system_message=system,
-    ).with_model("anthropic", CLAUDE_MODEL)
-    return await chat.send_message(UserMessage(text=user))
+    # session_id kept for signature compatibility; the stateless provider layer
+    # does not need it (each workflow sends the full context it requires).
+    return await llm_client.send_message(system, user)
 
 
 def _pretty_inputs(inputs: Dict[str, Any]) -> str:

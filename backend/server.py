@@ -1,15 +1,21 @@
-"""DocuMind AI — main FastAPI server."""
+"""DocuMind AI — main FastAPI server.
+
+Multi-tenant: every request is authenticated and every data query is scoped to
+the caller's organization (org_id), so companies never see each other's data.
+"""
 from __future__ import annotations
 
 import os
+import re
 import uuid
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Query
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Depends
+from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.requests import Request
 from io import BytesIO
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -18,6 +24,9 @@ from pydantic import BaseModel, Field, ConfigDict
 
 from doc_types import DOC_TYPES, CATEGORIES, INDUSTRIES, PIPELINE, doc_type_dict
 import ai_engine as ai
+import llm_client
+import auth
+import security
 from exports import build_docx, extract_text_from_pdf, extract_text_from_docx
 
 # ---------------- bootstrapping ----------------
@@ -28,11 +37,16 @@ mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 
+auth.init(db)
+
 app = FastAPI(title="DocuMind AI")
 api = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 log = logging.getLogger("documind")
+
+CurrentUser = Depends(auth.get_current_user)
+ai_rate = Depends(security.rate_limit("ai", 30, 60))
 
 
 def now_iso() -> str:
@@ -45,6 +59,31 @@ def _require_type(doc_type: str):
     return DOC_TYPES[doc_type]
 
 
+def org_scope(user: Dict[str, Any], extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Base query scoped to the caller's organization."""
+    q: Dict[str, Any] = {"org_id": user["org_id"]}
+    if extra:
+        q.update(extra)
+    return q
+
+
+def doc_scope(user: Dict[str, Any], extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Document query scoped to org and excluding soft-deleted docs."""
+    q: Dict[str, Any] = {"org_id": user["org_id"], "is_deleted": {"$ne": True}}
+    if extra:
+        q.update(extra)
+    return q
+
+
+def _ai_error(e: Exception) -> HTTPException:
+    """Convert an AI/provider exception into a safe client-facing error."""
+    if isinstance(e, llm_client.LLMConfigError):
+        # Safe to surface: it's a setup hint with no secrets.
+        return HTTPException(status_code=503, detail=str(e))
+    log.exception("AI request failed")
+    return HTTPException(status_code=502, detail="The AI service failed to respond. Please try again.")
+
+
 # =========================================================
 # Models
 # =========================================================
@@ -53,8 +92,8 @@ class GenerateRequest(BaseModel):
     type: str
     inputs: Dict[str, Any] = Field(default_factory=dict)
     industry: Optional[str] = None
-    parent_id: Optional[str] = None         # if regenerating a version of an existing doc
-    source_doc_id: Optional[str] = None     # if generated via pipeline from another doc
+    parent_id: Optional[str] = None
+    source_doc_id: Optional[str] = None
 
 
 class CompletenessRequest(BaseModel):
@@ -95,15 +134,26 @@ class SettingsModel(BaseModel):
 
 
 # =========================================================
-# Catalog
+# Health / Catalog  (public)
 # =========================================================
 @api.get("/")
 async def root():
     return {"message": "DocuMind AI API", "status": "ok"}
 
 
+@app.get("/health")
+async def health():
+    db_ok = True
+    try:
+        await db.command("ping")
+    except Exception:
+        db_ok = False
+    return {"status": "ok", "database": db_ok, "llm": llm_client.active_provider_info()}
+
+
 @api.get("/catalog")
 async def catalog():
+    # Static metadata, no tenant data — left unauthenticated so the UI can load it.
     return {
         "categories": CATEGORIES,
         "industries": INDUSTRIES,
@@ -113,51 +163,44 @@ async def catalog():
 
 
 @api.get("/stats")
-async def stats():
-    total = await db.documents.count_documents({"is_deleted": {"$ne": True}})
+async def stats(user: Dict[str, Any] = CurrentUser):
+    base = {"org_id": user["org_id"], "is_deleted": {"$ne": True}}
+    total = await db.documents.count_documents(base)
     by_type = {}
     for k in DOC_TYPES.keys():
-        by_type[k] = await db.documents.count_documents({"type": k, "is_deleted": {"$ne": True}})
-    template_count = await db.templates.count_documents({})
-    review_count = await db.reviews.count_documents({})
-    return {
-        "total": total,
-        "by_type": by_type,
-        "templates": template_count,
-        "reviews": review_count,
-    }
+        by_type[k] = await db.documents.count_documents({**base, "type": k})
+    template_count = await db.templates.count_documents(org_scope(user))
+    review_count = await db.reviews.count_documents(org_scope(user))
+    return {"total": total, "by_type": by_type, "templates": template_count, "reviews": review_count}
 
 
 # =========================================================
 # Completeness
 # =========================================================
-@api.post("/completeness")
-async def completeness(req: CompletenessRequest):
+@api.post("/completeness", dependencies=[ai_rate])
+async def completeness(req: CompletenessRequest, user: Dict[str, Any] = CurrentUser):
     meta = _require_type(req.type)
     try:
-        result = await ai.completeness_check(meta, req.inputs, req.industry or "")
+        return await ai.completeness_check(meta, req.inputs, req.industry or "")
     except Exception as e:
-        log.exception("completeness failure")
-        raise HTTPException(status_code=502, detail=f"AI completeness failed: {e}")
-    return result
+        raise _ai_error(e)
 
 
 # =========================================================
 # Document generation + versioning
 # =========================================================
-async def _persist_new_document(req: GenerateRequest, ai_result: Dict[str, Any]) -> Dict[str, Any]:
-    """Persist a generated document; manage parent/version chain."""
+async def _persist_new_document(req: GenerateRequest, ai_result: Dict[str, Any], user: Dict[str, Any]) -> Dict[str, Any]:
     meta = DOC_TYPES[req.type]
+    org_id = user["org_id"]
 
-    # Resolve parent chain
     parent_id = req.parent_id
     version_number = "1.0"
     if parent_id:
-        # Pick highest version under this parent
-        existing = await db.documents.find({"parent_id": parent_id, "is_deleted": {"$ne": True}}).to_list(500)
+        existing = await db.documents.find(
+            {"org_id": org_id, "parent_id": parent_id, "is_deleted": {"$ne": True}}
+        ).to_list(500)
         if not existing:
-            # parent itself counts as v1.0; new one is v1.1
-            parent_doc = await db.documents.find_one({"id": parent_id}, {"_id": 0})
+            parent_doc = await db.documents.find_one({"org_id": org_id, "id": parent_id}, {"_id": 0})
             base_versions = [parent_doc["version_number"]] if parent_doc else ["1.0"]
         else:
             base_versions = [d.get("version_number", "1.0") for d in existing]
@@ -166,6 +209,7 @@ async def _persist_new_document(req: GenerateRequest, ai_result: Dict[str, Any])
     doc_id = str(uuid.uuid4())
     record = {
         "id": doc_id,
+        "org_id": org_id,
         "type": req.type,
         "category": meta["category"],
         "industry": req.industry or "",
@@ -177,6 +221,7 @@ async def _persist_new_document(req: GenerateRequest, ai_result: Dict[str, Any])
         "parent_id": parent_id,
         "version_number": version_number,
         "source_doc_id": req.source_doc_id,
+        "created_by": user["id"],
         "is_deleted": False,
         "created_at": now_iso(),
         "updated_at": now_iso(),
@@ -187,7 +232,6 @@ async def _persist_new_document(req: GenerateRequest, ai_result: Dict[str, Any])
 
 
 def _next_version(existing: List[str]) -> str:
-    """Bump minor version. existing like ['1.0', '1.1'] → '1.2'. If '1.9' → '2.0'."""
     nums = []
     for v in existing:
         try:
@@ -203,15 +247,18 @@ def _next_version(existing: List[str]) -> str:
     return f"{maj}.{mn + 1}"
 
 
-@api.post("/generate")
-async def generate(req: GenerateRequest):
-    meta = _require_type(req.type)
+async def _generate(req: GenerateRequest, user: Dict[str, Any]) -> Dict[str, Any]:
+    _require_type(req.type)
     try:
-        ai_result = await ai.generate_document(meta, req.inputs, req.industry or "")
+        ai_result = await ai.generate_document(DOC_TYPES[req.type], req.inputs, req.industry or "")
     except Exception as e:
-        log.exception("generate failure")
-        raise HTTPException(status_code=502, detail=f"AI generation failed: {e}")
-    return await _persist_new_document(req, ai_result)
+        raise _ai_error(e)
+    return await _persist_new_document(req, ai_result, user)
+
+
+@api.post("/generate", dependencies=[ai_rate])
+async def generate(req: GenerateRequest, user: Dict[str, Any] = CurrentUser):
+    return await _generate(req, user)
 
 
 # =========================================================
@@ -224,31 +271,30 @@ class PipelineRequest(BaseModel):
     industry: Optional[str] = None
 
 
-@api.post("/pipeline/generate")
-async def pipeline_generate(req: PipelineRequest):
-    source = await db.documents.find_one({"id": req.source_id}, {"_id": 0})
+@api.post("/pipeline/generate", dependencies=[ai_rate])
+async def pipeline_generate(req: PipelineRequest, user: Dict[str, Any] = CurrentUser):
+    source = await db.documents.find_one(doc_scope(user, {"id": req.source_id}), {"_id": 0})
     if not source:
         raise HTTPException(status_code=404, detail="Source document not found")
     if req.target_type not in DOC_TYPES:
         raise HTTPException(status_code=400, detail="Unknown target type")
-    allowed = PIPELINE.get(source["type"], [])
-    if req.target_type not in allowed:
+    if req.target_type not in PIPELINE.get(source["type"], []):
         raise HTTPException(status_code=400, detail="Target type is not a valid pipeline step")
 
-    # Construct inputs for the target by mining source content
-    sec_summary = "\n\n".join(f"## {s['heading']}\n{s['content']}" for s in source.get("content", {}).get("sections", []))
+    sec_summary = "\n\n".join(
+        f"## {s['heading']}\n{s['content']}" for s in source.get("content", {}).get("sections", [])
+    )
     base_inputs = {**source.get("inputs", {})}
     base_inputs[f"Source {source['type'].upper()} Summary"] = sec_summary[:6000]
     base_inputs["Source Document Title"] = source.get("title", "")
-    industry = req.industry or source.get("industry", "")
 
     gen_req = GenerateRequest(
         type=req.target_type,
         inputs=base_inputs,
-        industry=industry,
+        industry=req.industry or source.get("industry", ""),
         source_doc_id=source["id"],
     )
-    return await generate(gen_req)
+    return await _generate(gen_req, user)
 
 
 # =========================================================
@@ -256,6 +302,7 @@ async def pipeline_generate(req: PipelineRequest):
 # =========================================================
 @api.get("/documents")
 async def list_documents(
+    user: Dict[str, Any] = CurrentUser,
     type: Optional[str] = None,
     category: Optional[str] = None,
     industry: Optional[str] = None,
@@ -263,7 +310,8 @@ async def list_documents(
     sort: str = "created_desc",
     limit: int = 200,
 ):
-    query: Dict[str, Any] = {"is_deleted": {"$ne": True}}
+    limit = max(1, min(limit, 500))
+    query = doc_scope(user)
     if type:
         query["type"] = type
     if category:
@@ -271,15 +319,16 @@ async def list_documents(
     if industry:
         query["industry"] = industry
     if q:
-        query["title"] = {"$regex": q, "$options": "i"}
+        # Escape user input so it can't act as a regular expression.
+        query["title"] = {"$regex": re.escape(q), "$options": "i"}
 
     sort_key = {
-        "created_desc":  ("created_at", -1),
-        "created_asc":   ("created_at", 1),
-        "title_asc":     ("title", 1),
-        "title_desc":    ("title", -1),
-        "score_desc":    ("completeness_score", -1),
-        "score_asc":     ("completeness_score", 1),
+        "created_desc": ("created_at", -1),
+        "created_asc": ("created_at", 1),
+        "title_asc": ("title", 1),
+        "title_desc": ("title", -1),
+        "score_desc": ("completeness_score", -1),
+        "score_asc": ("completeness_score", 1),
     }.get(sort, ("created_at", -1))
 
     cursor = db.documents.find(query, {"_id": 0}).sort(*sort_key).limit(limit)
@@ -287,36 +336,38 @@ async def list_documents(
 
 
 @api.get("/documents/{doc_id}")
-async def get_document(doc_id: str):
-    doc = await db.documents.find_one({"id": doc_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+async def get_document(doc_id: str, user: Dict[str, Any] = CurrentUser):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
     return doc
 
 
 @api.patch("/documents/{doc_id}")
-async def patch_document(doc_id: str, patch: DocumentPatch):
+async def patch_document(doc_id: str, patch: DocumentPatch, user: Dict[str, Any] = CurrentUser):
     fields = {k: v for k, v in patch.model_dump().items() if v is not None}
     if not fields:
         raise HTTPException(status_code=400, detail="No fields to update")
     fields["updated_at"] = now_iso()
-    res = await db.documents.update_one({"id": doc_id}, {"$set": fields})
+    res = await db.documents.update_one(doc_scope(user, {"id": doc_id}), {"$set": fields})
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Document not found")
-    return await db.documents.find_one({"id": doc_id}, {"_id": 0})
+    return await db.documents.find_one(org_scope(user, {"id": doc_id}), {"_id": 0})
 
 
 @api.delete("/documents/{doc_id}")
-async def delete_document(doc_id: str):
-    res = await db.documents.update_one({"id": doc_id}, {"$set": {"is_deleted": True, "updated_at": now_iso()}})
+async def delete_document(doc_id: str, user: Dict[str, Any] = CurrentUser):
+    res = await db.documents.update_one(
+        doc_scope(user, {"id": doc_id}), {"$set": {"is_deleted": True, "updated_at": now_iso()}}
+    )
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Document not found")
     return {"deleted": True, "id": doc_id}
 
 
 @api.post("/documents/{doc_id}/duplicate")
-async def duplicate_document(doc_id: str):
-    doc = await db.documents.find_one({"id": doc_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+async def duplicate_document(doc_id: str, user: Dict[str, Any] = CurrentUser):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
     new_id = str(uuid.uuid4())
@@ -326,6 +377,7 @@ async def duplicate_document(doc_id: str):
         "title": f"{doc['title']} (Copy)",
         "parent_id": None,
         "version_number": "1.0",
+        "created_by": user["id"],
         "created_at": now_iso(),
         "updated_at": now_iso(),
     }
@@ -335,51 +387,49 @@ async def duplicate_document(doc_id: str):
 
 
 @api.get("/documents/{doc_id}/versions")
-async def list_versions(doc_id: str):
-    """Return all versions of a document family (root + children, ordered)."""
-    root = await db.documents.find_one({"id": doc_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+async def list_versions(doc_id: str, user: Dict[str, Any] = CurrentUser):
+    root = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not root:
         raise HTTPException(status_code=404, detail="Document not found")
     root_id = root.get("parent_id") or root["id"]
     family = await db.documents.find(
-        {"$or": [{"id": root_id}, {"parent_id": root_id}], "is_deleted": {"$ne": True}},
-        {"_id": 0, "content": 0, "inputs": 0}
+        doc_scope(user, {"$or": [{"id": root_id}, {"parent_id": root_id}]}),
+        {"_id": 0, "content": 0, "inputs": 0},
     ).to_list(500)
     family.sort(key=lambda d: (d.get("version_number") or "1.0"))
     return family
 
 
-@api.post("/documents/{doc_id}/versions")
-async def create_new_version(doc_id: str):
-    """Regenerate using the same inputs but bump version under same parent."""
-    doc = await db.documents.find_one({"id": doc_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+@api.post("/documents/{doc_id}/versions", dependencies=[ai_rate])
+async def create_new_version(doc_id: str, user: Dict[str, Any] = CurrentUser):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
-    parent_id = doc.get("parent_id") or doc["id"]
     req = GenerateRequest(
         type=doc["type"],
         inputs=doc.get("inputs", {}),
         industry=doc.get("industry") or "",
-        parent_id=parent_id,
+        parent_id=doc.get("parent_id") or doc["id"],
     )
-    return await generate(req)
+    return await _generate(req, user)
 
 
 # =========================================================
 # Interview / requirement-gathering engine
 # =========================================================
-@api.post("/interview/start")
-async def interview_start(req: InterviewStart):
+@api.post("/interview/start", dependencies=[ai_rate])
+async def interview_start(req: InterviewStart, user: Dict[str, Any] = CurrentUser):
     meta = _require_type(req.type)
     conv_id = str(uuid.uuid4())
     industry = req.industry or ""
     try:
         first = await ai.requirement_gathering(meta, [], industry)
     except Exception as e:
-        log.exception("interview start failure")
-        raise HTTPException(status_code=502, detail=f"AI failure: {e}")
+        raise _ai_error(e)
     record = {
         "id": conv_id,
+        "org_id": user["org_id"],
+        "created_by": user["id"],
         "type": req.type,
         "industry": industry,
         "messages": [{"role": "assistant", "content": first.get("next_question", "Let's get started.")}],
@@ -392,9 +442,9 @@ async def interview_start(req: InterviewStart):
     return record
 
 
-@api.post("/interview/{conv_id}/message")
-async def interview_message(conv_id: str, body: InterviewMessage):
-    convo = await db.conversations.find_one({"id": conv_id}, {"_id": 0})
+@api.post("/interview/{conv_id}/message", dependencies=[ai_rate])
+async def interview_message(conv_id: str, body: InterviewMessage, user: Dict[str, Any] = CurrentUser):
+    convo = await db.conversations.find_one(org_scope(user, {"id": conv_id}), {"_id": 0})
     if not convo:
         raise HTTPException(status_code=404, detail="Interview not found")
     meta = _require_type(convo["type"])
@@ -403,58 +453,48 @@ async def interview_message(conv_id: str, body: InterviewMessage):
     try:
         state = await ai.requirement_gathering(meta, convo["messages"], convo.get("industry", ""))
     except Exception as e:
-        log.exception("interview message failure")
-        raise HTTPException(status_code=502, detail=f"AI failure: {e}")
+        raise _ai_error(e)
 
     nxt = state.get("next_question")
     if nxt and not state.get("is_complete"):
         convo["messages"].append({"role": "assistant", "content": nxt})
     convo["state"] = state
     convo["updated_at"] = now_iso()
-    await db.conversations.update_one({"id": conv_id}, {"$set": convo})
+    await db.conversations.update_one(org_scope(user, {"id": conv_id}), {"$set": convo})
     return convo
 
 
 @api.get("/interview/{conv_id}")
-async def interview_get(conv_id: str):
-    convo = await db.conversations.find_one({"id": conv_id}, {"_id": 0})
+async def interview_get(conv_id: str, user: Dict[str, Any] = CurrentUser):
+    convo = await db.conversations.find_one(org_scope(user, {"id": conv_id}), {"_id": 0})
     if not convo:
         raise HTTPException(status_code=404, detail="Not found")
     return convo
 
 
-@api.post("/interview/{conv_id}/generate")
-async def interview_generate(conv_id: str):
-    """Finalize the interview and generate the document from gathered data."""
-    convo = await db.conversations.find_one({"id": conv_id}, {"_id": 0})
+@api.post("/interview/{conv_id}/generate", dependencies=[ai_rate])
+async def interview_generate(conv_id: str, user: Dict[str, Any] = CurrentUser):
+    convo = await db.conversations.find_one(org_scope(user, {"id": conv_id}), {"_id": 0})
     if not convo:
         raise HTTPException(status_code=404, detail="Interview not found")
     gathered = (convo.get("state") or {}).get("gathered") or {}
-    req = GenerateRequest(
-        type=convo["type"],
-        inputs=gathered,
-        industry=convo.get("industry") or "",
-    )
-    return await generate(req)
+    req = GenerateRequest(type=convo["type"], inputs=gathered, industry=convo.get("industry") or "")
+    return await _generate(req, user)
 
 
 # =========================================================
 # Document Reviewer (file upload)
 # =========================================================
-@api.post("/review/upload")
-async def review_upload(file: UploadFile = File(...)):
-    data = await file.read()
-    if not data:
-        raise HTTPException(status_code=400, detail="Empty file")
-    name = (file.filename or "").lower()
-    if name.endswith(".pdf"):
+@api.post("/review/upload", dependencies=[ai_rate])
+async def review_upload(user: Dict[str, Any] = CurrentUser, file: UploadFile = File(...)):
+    ext = security.check_extension(file.filename)
+    data = await security.read_upload(file)
+    if ext == ".pdf":
         text = extract_text_from_pdf(data)
-    elif name.endswith(".docx"):
+    elif ext == ".docx":
         text = extract_text_from_docx(data)
-    elif name.endswith(".txt") or name.endswith(".md"):
-        text = data.decode("utf-8", errors="ignore")
     else:
-        raise HTTPException(status_code=400, detail="Only PDF, DOCX, TXT, MD files are supported")
+        text = data.decode("utf-8", errors="ignore")
 
     if not text.strip():
         raise HTTPException(status_code=400, detail="Could not extract text from the file")
@@ -462,11 +502,12 @@ async def review_upload(file: UploadFile = File(...)):
     try:
         analysis = await ai.review_document(file.filename or "document", text)
     except Exception as e:
-        log.exception("review failure")
-        raise HTTPException(status_code=502, detail=f"AI review failed: {e}")
+        raise _ai_error(e)
 
     review = {
         "id": str(uuid.uuid4()),
+        "org_id": user["org_id"],
+        "created_by": user["id"],
         "filename": file.filename,
         "size_bytes": len(data),
         "text_excerpt": text[:1500],
@@ -479,22 +520,22 @@ async def review_upload(file: UploadFile = File(...)):
 
 
 @api.get("/reviews")
-async def list_reviews():
-    cursor = db.reviews.find({}, {"_id": 0}).sort("created_at", -1).limit(100)
+async def list_reviews(user: Dict[str, Any] = CurrentUser):
+    cursor = db.reviews.find(org_scope(user), {"_id": 0}).sort("created_at", -1).limit(100)
     return await cursor.to_list(100)
 
 
 @api.get("/reviews/{review_id}")
-async def get_review(review_id: str):
-    r = await db.reviews.find_one({"id": review_id}, {"_id": 0})
+async def get_review(review_id: str, user: Dict[str, Any] = CurrentUser):
+    r = await db.reviews.find_one(org_scope(user, {"id": review_id}), {"_id": 0})
     if not r:
         raise HTTPException(status_code=404, detail="Review not found")
     return r
 
 
 @api.delete("/reviews/{review_id}")
-async def delete_review(review_id: str):
-    res = await db.reviews.delete_one({"id": review_id})
+async def delete_review(review_id: str, user: Dict[str, Any] = CurrentUser):
+    res = await db.reviews.delete_one(org_scope(user, {"id": review_id}))
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Review not found")
     return {"deleted": True, "id": review_id}
@@ -505,6 +546,7 @@ async def delete_review(review_id: str):
 # =========================================================
 @api.post("/templates")
 async def upload_template(
+    user: Dict[str, Any] = CurrentUser,
     file: UploadFile = File(...),
     name: str = Form(...),
     description: str = Form(""),
@@ -516,20 +558,19 @@ async def upload_template(
     reviewer: str = Form(""),
     approver: str = Form(""),
 ):
-    data = await file.read()
-    filename = (file.filename or "").lower()
-    if not (filename.endswith(".pdf") or filename.endswith(".docx") or filename.endswith(".txt") or filename.endswith(".md")):
-        raise HTTPException(status_code=400, detail="Only PDF, DOCX, TXT, MD allowed")
-
-    if filename.endswith(".pdf"):
+    ext = security.check_extension(file.filename)
+    data = await security.read_upload(file)
+    if ext == ".pdf":
         text = extract_text_from_pdf(data)
-    elif filename.endswith(".docx"):
+    elif ext == ".docx":
         text = extract_text_from_docx(data)
     else:
         text = data.decode("utf-8", errors="ignore")
 
     template = {
         "id": str(uuid.uuid4()),
+        "org_id": user["org_id"],
+        "created_by": user["id"],
         "name": name,
         "description": description,
         "filename": file.filename,
@@ -550,66 +591,66 @@ async def upload_template(
 
 
 @api.get("/templates")
-async def list_templates():
-    cursor = db.templates.find({}, {"_id": 0}).sort("created_at", -1).limit(200)
+async def list_templates(user: Dict[str, Any] = CurrentUser):
+    cursor = db.templates.find(org_scope(user), {"_id": 0}).sort("created_at", -1).limit(200)
     return await cursor.to_list(200)
 
 
 @api.get("/templates/{tpl_id}")
-async def get_template(tpl_id: str):
-    t = await db.templates.find_one({"id": tpl_id}, {"_id": 0})
+async def get_template(tpl_id: str, user: Dict[str, Any] = CurrentUser):
+    t = await db.templates.find_one(org_scope(user, {"id": tpl_id}), {"_id": 0})
     if not t:
         raise HTTPException(status_code=404, detail="Template not found")
     return t
 
 
 @api.delete("/templates/{tpl_id}")
-async def delete_template(tpl_id: str):
-    res = await db.templates.delete_one({"id": tpl_id})
+async def delete_template(tpl_id: str, user: Dict[str, Any] = CurrentUser):
+    res = await db.templates.delete_one(org_scope(user, {"id": tpl_id}))
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Template not found")
     return {"deleted": True, "id": tpl_id}
 
 
 # =========================================================
-# Settings (singleton: id="default")
+# Settings (one document per organization)
 # =========================================================
 @api.get("/settings")
-async def get_settings():
-    s = await db.settings.find_one({"id": "default"}, {"_id": 0})
+async def get_settings(user: Dict[str, Any] = CurrentUser):
+    s = await db.settings.find_one(org_scope(user), {"_id": 0})
     if not s:
-        s = {"id": "default", **SettingsModel().model_dump()}
-        await db.settings.insert_one(s)
-        s.pop("_id", None)
+        s = {"org_id": user["org_id"], **SettingsModel().model_dump()}
+        await db.settings.insert_one(dict(s))
+    s.pop("_id", None)
     return s
 
 
 @api.put("/settings")
-async def update_settings(payload: SettingsModel):
-    new = {"id": "default", **payload.model_dump(), "updated_at": now_iso()}
-    await db.settings.update_one({"id": "default"}, {"$set": new}, upsert=True)
-    return await db.settings.find_one({"id": "default"}, {"_id": 0})
+async def update_settings(payload: SettingsModel, user: Dict[str, Any] = CurrentUser):
+    data = payload.model_dump()
+    data["company_logo_url"] = security.validate_public_url(data.get("company_logo_url"))
+    new = {"org_id": user["org_id"], **data, "updated_at": now_iso()}
+    await db.settings.update_one(org_scope(user), {"$set": new}, upsert=True)
+    return await db.settings.find_one(org_scope(user), {"_id": 0})
 
 
 # =========================================================
 # Export: DOCX  (PDF is generated client-side via jsPDF)
 # =========================================================
 @api.get("/export/docx/{doc_id}")
-async def export_docx(doc_id: str, template_id: Optional[str] = None):
-    doc = await db.documents.find_one({"id": doc_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+async def export_docx(doc_id: str, user: Dict[str, Any] = CurrentUser, template_id: Optional[str] = None):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
-    settings = await db.settings.find_one({"id": "default"}, {"_id": 0}) or {}
+    settings = await db.settings.find_one(org_scope(user), {"_id": 0}) or {}
     if template_id:
-        tpl = await db.templates.find_one({"id": template_id}, {"_id": 0})
+        tpl = await db.templates.find_one(org_scope(user, {"id": template_id}), {"_id": 0})
         if tpl:
-            # Template values override settings
             for k in ["header", "footer", "version_number", "author", "reviewer", "approver", "document_id_prefix"]:
                 if tpl.get(k):
                     settings[k] = tpl[k]
             if tpl.get("document_id_prefix"):
                 settings["document_id"] = f"{tpl['document_id_prefix']}-{doc['id'][:8].upper()}"
-    # Ensure version_number falls back to the document's
     if not settings.get("version_number"):
         settings["version_number"] = doc.get("version_number", "1.0")
 
@@ -630,9 +671,9 @@ class ImproveRequest(BaseModel):
     section_index: int
 
 
-@api.post("/documents/{doc_id}/improve")
-async def improve(doc_id: str, req: ImproveRequest):
-    doc = await db.documents.find_one({"id": doc_id, "is_deleted": {"$ne": True}}, {"_id": 0})
+@api.post("/documents/{doc_id}/improve", dependencies=[ai_rate])
+async def improve(doc_id: str, req: ImproveRequest, user: Dict[str, Any] = CurrentUser):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
     secs = doc.get("content", {}).get("sections", [])
@@ -640,31 +681,61 @@ async def improve(doc_id: str, req: ImproveRequest):
         raise HTTPException(status_code=400, detail="Invalid section index")
     sec = secs[req.section_index]
     try:
-        out = await ai.improve_section(sec["heading"], sec.get("content", ""), DOC_TYPES[doc["type"]]["label"], doc.get("industry", ""))
+        out = await ai.improve_section(
+            sec["heading"], sec.get("content", ""), DOC_TYPES[doc["type"]]["label"], doc.get("industry", "")
+        )
     except Exception as e:
-        log.exception("improve failure")
-        raise HTTPException(status_code=502, detail=f"AI failure: {e}")
+        raise _ai_error(e)
 
     secs[req.section_index] = {**sec, "content": out.get("improved_content", sec.get("content", ""))}
     await db.documents.update_one(
-        {"id": doc_id},
+        org_scope(user, {"id": doc_id}),
         {"$set": {"content": {"sections": secs}, "updated_at": now_iso()}},
     )
-    return await db.documents.find_one({"id": doc_id}, {"_id": 0})
+    return await db.documents.find_one(org_scope(user, {"id": doc_id}), {"_id": 0})
 
 
 # ---------------- wire up ----------------
+api.include_router(auth.router)
 app.include_router(api)
+
+_cors_env = os.environ.get("CORS_ORIGINS", "")
+_origins = [o.strip() for o in _cors_env.split(",") if o.strip() and o.strip() != "*"]
+if not _origins:
+    _origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_credentials=False,  # we authenticate with Bearer tokens, not cookies
+    allow_origins=_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    log.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+
+@app.on_event("startup")
+async def ensure_indexes():
+    try:
+        await db.documents.create_index([("org_id", 1), ("is_deleted", 1), ("created_at", -1)])
+        await db.documents.create_index([("org_id", 1), ("id", 1)])
+        await db.documents.create_index([("org_id", 1), ("parent_id", 1)])
+        await db.reviews.create_index([("org_id", 1), ("created_at", -1)])
+        await db.templates.create_index([("org_id", 1), ("created_at", -1)])
+        await db.conversations.create_index([("org_id", 1), ("id", 1)])
+        await db.settings.create_index([("org_id", 1)], unique=True)
+        await db.users.create_index([("email", 1)], unique=True)
+        await db.users.create_index([("google_sub", 1)])
+        await db.organizations.create_index([("id", 1)], unique=True)
+    except Exception:
+        log.exception("Index creation failed (continuing)")

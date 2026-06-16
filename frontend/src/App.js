@@ -1,5 +1,5 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
@@ -9,17 +9,43 @@ import DocumentPage from "@/pages/DocumentPage";
 import Reviewer from "@/pages/Reviewer";
 import Templates from "@/pages/Templates";
 import Settings from "@/pages/Settings";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import { ThemeProvider } from "@/lib/theme";
 import { CatalogProvider } from "@/lib/catalog";
+import { AuthProvider, useAuth } from "@/lib/auth";
+
+function FullScreenLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[var(--paper)]">
+      <div className="h-10 w-40 shimmer rounded-md" />
+    </div>
+  );
+}
+
+function ProtectedLayout() {
+  const { isAuthed, loading } = useAuth();
+  if (loading) return <FullScreenLoader />;
+  if (!isAuthed) return <Navigate to="/login" replace />;
+  return (
+    <CatalogProvider>
+      <Layout>
+        <Outlet />
+      </Layout>
+    </CatalogProvider>
+  );
+}
 
 function App() {
   return (
     <ThemeProvider>
-      <CatalogProvider>
+      <AuthProvider>
         <div className="App">
           <BrowserRouter>
-            <Layout>
-              <Routes>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route element={<ProtectedLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/generator/:type" element={<Generator />} />
                 <Route path="/history" element={<History />} />
@@ -27,8 +53,9 @@ function App() {
                 <Route path="/reviewer" element={<Reviewer />} />
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </Layout>
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
             <Toaster
               position="bottom-right"
               toastOptions={{
@@ -44,7 +71,7 @@ function App() {
             />
           </BrowserRouter>
         </div>
-      </CatalogProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

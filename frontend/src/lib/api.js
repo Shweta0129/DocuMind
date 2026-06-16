@@ -3,9 +3,45 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
 
+const TOKEN_KEY = "documind_token";
+export const tokenStore = {
+  get: () => localStorage.getItem(TOKEN_KEY),
+  set: (t) => localStorage.setItem(TOKEN_KEY, t),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
+};
+
 const client = axios.create({ baseURL: API, timeout: 180000 });
 
+// Attach the bearer token to every request.
+client.interceptors.request.use((cfg) => {
+  const t = tokenStore.get();
+  if (t) cfg.headers.Authorization = `Bearer ${t}`;
+  return cfg;
+});
+
+// On 401, drop the token and bounce to login (unless already there).
+client.interceptors.response.use(
+  (r) => r,
+  (err) => {
+    if (err?.response?.status === 401) {
+      tokenStore.clear();
+      const path = window.location.pathname;
+      if (!path.startsWith("/login") && !path.startsWith("/register")) {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(err);
+  }
+);
+
 export const api = {
+  // auth
+  register: (payload) => client.post(`/auth/register`, payload).then(r => r.data),
+  login: (payload) => client.post(`/auth/login`, payload).then(r => r.data),
+  googleLogin: (credential, company_name) =>
+    client.post(`/auth/google`, { credential, company_name }).then(r => r.data),
+  me: () => client.get(`/auth/me`).then(r => r.data),
+
   // catalog & stats
   catalog: () => client.get(`/catalog`).then(r => r.data),
   stats: () => client.get(`/stats`).then(r => r.data),
@@ -57,9 +93,22 @@ export const api = {
   getSettings: () => client.get(`/settings`).then(r => r.data),
   updateSettings: (payload) => client.put(`/settings`, payload).then(r => r.data),
 
-  // export
-  docxUrl: (id, template_id) => {
-    const qs = template_id ? `?template_id=${template_id}` : "";
-    return `${API}/export/docx/${id}${qs}`;
+  // export — fetch as an authenticated blob and trigger a download
+  downloadDocx: async (id, template_id) => {
+    const res = await client.get(`/export/docx/${id}`, {
+      params: template_id ? { template_id } : {},
+      responseType: "blob",
+    });
+    const cd = res.headers["content-disposition"] || "";
+    const match = /filename="?([^"]+)"?/.exec(cd);
+    const filename = match ? match[1] : "document.docx";
+    const url = window.URL.createObjectURL(res.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
   },
 };

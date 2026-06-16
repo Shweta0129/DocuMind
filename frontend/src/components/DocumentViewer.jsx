@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { markdownToHtml } from "../lib/markdown";
 import { exportDocumentToPDF } from "../lib/pdf";
-import { api, API } from "../lib/api";
+import { api } from "../lib/api";
 import { useCatalog, iconForName } from "../lib/catalog";
 import { toast } from "sonner";
 import {
@@ -55,10 +55,13 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
   };
 
   const handlePdf = () => { exportDocumentToPDF(doc); toast.success("PDF download started"); };
-  const handleDocx = () => {
-    const url = `${API}/export/docx/${doc.id}`;
-    window.open(url, "_blank");
-    toast.success("DOCX download started");
+  const handleDocx = async () => {
+    try {
+      await api.downloadDocx(doc.id);
+      toast.success("DOCX download started");
+    } catch {
+      toast.error("Could not export DOCX");
+    }
   };
 
   const improve = async (idx) => {

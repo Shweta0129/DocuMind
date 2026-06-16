@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Sparkles, LayoutDashboard, History, Sun, Moon, Github,
+  Sparkles, LayoutDashboard, History, Sun, Moon, LogOut,
   FileSearch, LayoutTemplate, Settings as Cog, ChevronDown, ChevronRight,
 } from "lucide-react";
 import { useTheme } from "../lib/theme";
 import { useCatalog, iconForName } from "../lib/catalog";
+import { useAuth } from "../lib/auth";
+import { LOGOUT } from "../constants/testIds/auth";
 
 export default function Layout({ children }) {
   const { theme, toggle } = useTheme();
   const location = useLocation();
   const { doc_types, loading } = useCatalog();
+  const { user, org, logout } = useAuth();
   const [openCats, setOpenCats] = useState({}); // category key → bool
 
   return (
@@ -92,10 +95,21 @@ export default function Layout({ children }) {
             {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             <span>{theme === "light" ? "Dark" : "Light"} mode</span>
           </button>
-          <div className="flex items-center gap-2 text-xs text-[var(--muted)] px-1">
-            <Github className="w-3.5 h-3.5" />
-            <span>Powered by Claude Sonnet 4.5</span>
-          </div>
+          {user && (
+            <div className="px-1 pt-1">
+              <div className="text-sm font-bold truncate" title={user.email}>{user.name || user.email}</div>
+              {org?.name && <div className="text-xs text-[var(--muted)] truncate">{org.name}</div>}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={logout}
+            className="nb-btn nb-btn-ghost w-full"
+            data-testid={LOGOUT.button}
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign out</span>
+          </button>
         </div>
       </aside>
 
