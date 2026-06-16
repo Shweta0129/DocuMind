@@ -28,12 +28,14 @@ def _extract_json(raw: str) -> Dict[str, Any]:
     if t.startswith("```"):
         t = re.sub(r"^```(?:json)?\s*", "", t)
         t = re.sub(r"\s*```\s*$", "", t)
+    # strict=False tolerates literal newlines/tabs inside string values, which
+    # some models (e.g. Llama via Groq) emit when returning markdown content.
     try:
-        return json.loads(t)
+        return json.loads(t, strict=False)
     except json.JSONDecodeError:
         s, e = t.find("{"), t.rfind("}")
         if s != -1 and e != -1 and e > s:
-            return json.loads(t[s:e + 1])
+            return json.loads(t[s:e + 1], strict=False)
         raise
 
 
