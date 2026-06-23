@@ -66,6 +66,11 @@ export default function Login() {
             data-testid={LOGIN.passwordInput}
           />
         </Field>
+        <div className="text-right -mt-1">
+          <Link to="/forgot-password" className="text-xs text-[var(--muted)] underline" data-testid={LOGIN.forgotPasswordLink}>
+            Forgot password?
+          </Link>
+        </div>
         <button type="submit" className="nb-btn w-full justify-center" disabled={busy} data-testid={LOGIN.submitButton}>
           {busy ? "Signing in…" : "Sign in"}
         </button>

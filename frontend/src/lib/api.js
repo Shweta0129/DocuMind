@@ -41,6 +41,8 @@ export const api = {
   googleLogin: (credential, company_name) =>
     client.post(`/auth/google`, { credential, company_name }).then(r => r.data),
   me: () => client.get(`/auth/me`).then(r => r.data),
+  forgotPassword: (email) => client.post(`/auth/forgot-password`, { email }).then(r => r.data),
+  resetPassword: (token, password) => client.post(`/auth/reset-password`, { token, password }).then(r => r.data),
 
   // catalog & stats
   catalog: () => client.get(`/catalog`).then(r => r.data),
@@ -93,12 +95,10 @@ export const api = {
   getSettings: () => client.get(`/settings`).then(r => r.data),
   updateSettings: (payload) => client.put(`/settings`, payload).then(r => r.data),
 
-  // export — fetch as an authenticated blob and trigger a download
-  downloadDocx: async (id, template_id) => {
-    const res = await client.get(`/export/docx/${id}`, {
-      params: template_id ? { template_id } : {},
-      responseType: "blob",
-    });
+  // export — POST (so client-rendered diagram images can be embedded), fetch
+  // as an authenticated blob and trigger a download.
+  downloadDocx: async (id, { template_id, sections } = {}) => {
+    const res = await client.post(`/export/docx/${id}`, { template_id, sections }, { responseType: "blob" });
     const cd = res.headers["content-disposition"] || "";
     const match = /filename="?([^"]+)"?/.exec(cd);
     const filename = match ? match[1] : "document.docx";

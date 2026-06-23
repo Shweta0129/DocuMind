@@ -645,11 +645,7 @@ async def update_settings(payload: SettingsModel, user: Dict[str, Any] = Current
 # =========================================================
 # Export: DOCX  (PDF is generated client-side via jsPDF)
 # =========================================================
-@api.get("/export/docx/{doc_id}")
-async def export_docx(doc_id: str, user: Dict[str, Any] = CurrentUser, template_id: Optional[str] = None):
-    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
-    if not doc:
-        raise HTTPException(status_code=404, detail="Document not found")
+async def _build_docx_response(doc: Dict[str, Any], user: Dict[str, Any], template_id: Optional[str]):
     settings = await db.settings.find_one(org_scope(user), {"_id": 0}) or {}
     if template_id:
         tpl = await db.templates.find_one(org_scope(user, {"id": template_id}), {"_id": 0})
@@ -669,6 +665,32 @@ async def export_docx(doc_id: str, user: Dict[str, Any] = CurrentUser, template_
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": f'attachment; filename="{safe}.docx"'},
     )
+
+
+@api.get("/export/docx/{doc_id}")
+async def export_docx(doc_id: str, user: Dict[str, Any] = CurrentUser, template_id: Optional[str] = None):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return await _build_docx_response(doc, user, template_id)
+
+
+class DocxExportBody(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    template_id: Optional[str] = None
+    # Client may send sections with Mermaid blocks already replaced by rendered
+    # image data-URIs, so diagrams appear in the DOCX too.
+    sections: Optional[List[Dict[str, Any]]] = None
+
+
+@api.post("/export/docx/{doc_id}")
+async def export_docx_post(doc_id: str, body: DocxExportBody, user: Dict[str, Any] = CurrentUser):
+    doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if body.sections is not None:
+        doc = {**doc, "content": {"sections": body.sections}}
+    return await _build_docx_response(doc, user, body.template_id)
 
 
 # =========================================================

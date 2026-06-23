@@ -96,6 +96,44 @@ def decode_token(token: str) -> Dict[str, Any]:
     return jwt.decode(token, _jwt_secret(), algorithms=[JWT_ALGO])
 
 
+def create_reset_token(user: Dict[str, Any]) -> str:
+    payload = {"sub": user["id"], "typ": "reset",
+               "exp": _now() + timedelta(hours=1), "iat": _now()}
+    return jwt.encode(payload, _jwt_secret(), algorithm=JWT_ALGO)
+
+
+def decode_reset_token(token: str) -> Dict[str, Any]:
+    p = jwt.decode(token, _jwt_secret(), algorithms=[JWT_ALGO])
+    if p.get("typ") != "reset":
+        raise jwt.InvalidTokenError("not a reset token")
+    return p
+
+
+async def _send_reset_email(email: str, link: str) -> None:
+    """Email the reset link via Resend. If no key is set, log it (dev fallback)."""
+    key = os.environ.get("RESEND_API_KEY")
+    if not key:
+        log.warning("RESEND_API_KEY not set — password reset link for %s: %s", email, link)
+        return
+    sender = os.environ.get("MAIL_FROM", "DocuMind AI <onboarding@resend.dev>")
+    html = (
+        "<p>You requested a password reset for DocuMind AI.</p>"
+        f'<p><a href="{link}">Click here to reset your password</a></p>'
+        "<p>This link expires in 1 hour. If you didn't request it, ignore this email.</p>"
+    )
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=15) as c:
+            await c.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {key}"},
+                json={"from": sender, "to": [email],
+                      "subject": "Reset your DocuMind AI password", "html": html},
+            )
+    except Exception as e:  # never fail the request because email failed
+        log.warning("Failed to send reset email to %s: %s", email, e)
+
+
 # --------------------------------------------------------------------------- #
 # Google ID token verification
 # --------------------------------------------------------------------------- #
@@ -256,6 +294,17 @@ class GoogleBody(BaseModel):
     company_name: str = Field(default="", max_length=120)
 
 
+class ForgotBody(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    email: EmailStr
+
+
+class ResetBody(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    token: str
+    password: str = Field(min_length=8, max_length=128)
+
+
 async def _auth_response(user: Dict[str, Any]) -> Dict[str, Any]:
     org = await _db.organizations.find_one({"id": user["org_id"]}, {"_id": 0})
     return {
@@ -320,6 +369,34 @@ async def google_login(body: GoogleBody):
         google_sub=google_sub,
     )
     return await _auth_response(user)
+
+
+@router.post("/forgot-password", dependencies=[Depends(rate_limit("auth", 10, 60))])
+async def forgot_password(body: ForgotBody):
+    email = body.email.lower().strip()
+    user = await _db.users.find_one({"email": email})
+    if user and user.get("password_hash"):
+        base = os.environ.get("APP_BASE_URL", "http://localhost:3000").rstrip("/")
+        link = f"{base}/reset-password?token={create_reset_token(user)}"
+        await _send_reset_email(email, link)
+    # Always generic, so we never reveal whether an account exists.
+    return {"message": "If an account with that email exists, a reset link has been sent."}
+
+
+@router.post("/reset-password", dependencies=[Depends(rate_limit("auth", 10, 60))])
+async def reset_password(body: ResetBody):
+    try:
+        p = decode_reset_token(body.token)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail="This reset link has expired. Please request a new one.")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=400, detail="Invalid or already-used reset link.")
+    res = await _db.users.update_one(
+        {"id": p.get("sub")}, {"$set": {"password_hash": hash_password(body.password)}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Account not found.")
+    return {"message": "Password updated. You can now sign in."}
 
 
 @router.get("/me")

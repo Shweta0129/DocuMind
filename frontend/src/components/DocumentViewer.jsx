@@ -10,6 +10,7 @@ import {
   GitBranch, FileText, ChevronRight, History as HistoryIcon, FileDown, Image as ImageIcon,
 } from "lucide-react";
 import mermaid from "mermaid";
+import { renderSectionsWithDiagrams } from "../lib/diagrams";
 
 let _mermaidReady = false;
 function ensureMermaid() {
@@ -110,7 +111,8 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
   };
   const handleDocx = async () => {
     try {
-      await api.downloadDocx(doc.id);
+      const sections = await renderSectionsWithDiagrams(doc.content?.sections || []);
+      await api.downloadDocx(doc.id, { sections });
       toast.success("DOCX download started");
     } catch {
       toast.error("Could not export DOCX");

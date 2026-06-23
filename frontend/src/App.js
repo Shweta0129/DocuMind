@@ -11,6 +11,8 @@ import Templates from "@/pages/Templates";
 import Settings from "@/pages/Settings";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import { ThemeProvider } from "@/lib/theme";
 import { CatalogProvider } from "@/lib/catalog";
 import { AuthProvider, useAuth } from "@/lib/auth";
@@ -45,6 +47,8 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route element={<ProtectedLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/generator/:type" element={<Generator />} />
