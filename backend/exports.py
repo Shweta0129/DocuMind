@@ -91,11 +91,14 @@ def _render_markdown(doc, md):
                 pass
             i += 1
             continue
-        # table
-        if re.match(r"^\s*\|.+\|\s*$", line) and i + 1 < len(lines) and re.match(r"^\s*\|?[\s\-:|]+\|?\s*$", lines[i + 1]):
+        # table — a row is any line containing "|"; the 2nd line must be a separator.
+        # Rows may omit leading/trailing pipes (models often do).
+        def _is_sep(s):
+            return "-" in s and re.match(r"^\s*\|?[\s:|-]+\|?\s*$", s) is not None
+        if "|" in line and i + 1 < len(lines) and _is_sep(lines[i + 1]):
             tbl = [line, lines[i + 1]]
             i += 2
-            while i < len(lines) and re.match(r"^\s*\|.+\|\s*$", lines[i]):
+            while i < len(lines) and "|" in lines[i] and lines[i].strip() and not re.match(r"^\s*#{1,6}\s", lines[i]):
                 tbl.append(lines[i])
                 i += 1
             _add_table_from_md(doc, tbl)

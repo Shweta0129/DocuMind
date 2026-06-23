@@ -76,11 +76,13 @@ export function markdownToHtml(md) {
       continue;
     }
 
-    // Tables
-    if (/^\s*\|.+\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?[\s\-:|]+\|?\s*$/.test(lines[i + 1])) {
+    // Tables — a row is any line containing "|"; the 2nd line must be a separator.
+    // Rows may omit leading/trailing pipes (models often do), so we don't require them.
+    const isSep = (s) => /-/.test(s) && /^\s*\|?[\s:|-]+\|?\s*$/.test(s);
+    if (line.includes("|") && i + 1 < lines.length && isSep(lines[i + 1])) {
       const tableLines = [line, lines[i + 1]];
       i += 2;
-      while (i < lines.length && /^\s*\|.+\|\s*$/.test(lines[i])) {
+      while (i < lines.length && lines[i].includes("|") && lines[i].trim() && !/^\s*#{1,6}\s/.test(lines[i])) {
         tableLines.push(lines[i]);
         i++;
       }

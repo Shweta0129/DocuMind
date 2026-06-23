@@ -35,7 +35,7 @@ export function exportDocumentToPDF(doc, settings = null) {
   // ---- Meta ----
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.setTextColor(110);
   ensure(16);
-  pdf.text(`${(doc.type || "").toUpperCase()}  ·  Quality ${doc.completeness_score ?? "—"}%  ·  v${doc.version_number || "1.0"}`, margin, y);
+  pdf.text(`${(doc.type || "").toUpperCase()}   -   Quality ${doc.completeness_score ?? "-"}%   -   v${doc.version_number || "1.0"}`, margin, y);
   y += 18;
 
   // ---- Separator ----
@@ -135,10 +135,14 @@ export function exportDocumentToPDF(doc, settings = null) {
       const img = /^\s*!\[[^\]]*\]\(\s*(data:image\/[^)]+)\)\s*$/.exec(line);
       if (img) { addImage(img[1]); i++; continue; }
 
-      // table
-      if (/^\s*\|.+\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?[\s\-:|]+\|?\s*$/.test(lines[i + 1])) {
+      // table — a row is any line containing "|"; the 2nd line must be a separator.
+      // (Rows may omit leading/trailing pipes, which models often do.)
+      const isSep = (s) => /-/.test(s) && /^\s*\|?[\s:|-]+\|?\s*$/.test(s);
+      if (line.includes("|") && i + 1 < lines.length && isSep(lines[i + 1])) {
         const tbl = [line, lines[i + 1]]; i += 2;
-        while (i < lines.length && /^\s*\|.+\|\s*$/.test(lines[i])) { tbl.push(lines[i]); i++; }
+        while (i < lines.length && lines[i].includes("|") && lines[i].trim() && !/^\s*#{1,6}\s/.test(lines[i])) {
+          tbl.push(lines[i]); i++;
+        }
         const rows = tbl.map((l) => l.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim()));
         drawTable(rows);
         continue;
@@ -154,7 +158,7 @@ export function exportDocumentToPDF(doc, settings = null) {
       const li = /^\s*[-*]\s+(.+)$/.exec(line) || /^\s*\d+\.\s+(.+)$/.exec(line);
       if (li) {
         ensure(15); pdf.setFont("helvetica", "normal"); pdf.setFontSize(11); pdf.setTextColor(20);
-        pdf.text("•", margin + 4, y);
+        pdf.text("-", margin + 4, y);
         pdf.splitTextToSize(stripInline(li[1]), contentW - 22).forEach((ln, idx) => {
           if (idx > 0) ensure(15); pdf.text(ln, margin + 18, y); y += 11 * 1.35;
         });
