@@ -1,10 +1,69 @@
 import jsPDF from "jspdf";
+import mermaid from "mermaid";
+
+let _mermaidReady = false;
+function ensureMermaid() {
+  if (_mermaidReady) return;
+  mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });
+  _mermaidReady = true;
+}
+
+// Render an SVG string to a PNG data-URL via an offscreen canvas.
+function svgToPng(svg) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = 2;
+      const w = img.width || 700;
+      const h = img.height || 420;
+      const canvas = document.createElement("canvas");
+      canvas.width = w * scale;
+      canvas.height = h * scale;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
+  });
+}
+
+// Pre-render every ```mermaid block (in document order) to a PNG data-URL.
+async function prerenderDiagrams(doc) {
+  ensureMermaid();
+  const codes = [];
+  (doc.content?.sections || []).forEach((sec) => {
+    const lines = (sec.content || "").split(/\r?\n/);
+    let i = 0;
+    while (i < lines.length) {
+      if (/^\s*```\s*mermaid\s*$/i.test(lines[i])) {
+        i++;
+        const c = [];
+        while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) { c.push(lines[i]); i++; }
+        i++;
+        codes.push(c.join("\n"));
+      } else { i++; }
+    }
+  });
+  const out = [];
+  for (let k = 0; k < codes.length; k++) {
+    try {
+      const { svg } = await mermaid.render(`pdf-mmd-${Date.now()}-${k}`, codes[k]);
+      out.push(await svgToPng(svg));
+    } catch { out.push(null); }
+  }
+  return out;
+}
 
 // Builds a structured PDF directly from the document object (not via canvas)
 // so PDFs are crisp, selectable, and small. Renders real tables, embedded
-// (user) images, and a Document Control block. Mermaid diagrams render fully in
-// the in-app viewer; in the PDF they appear as a labeled note.
-export function exportDocumentToPDF(doc, settings = null) {
+// (user) images, rendered Mermaid diagrams, and a Document Control block.
+export async function exportDocumentToPDF(doc, settings = null) {
+  const diagramImages = await prerenderDiagrams(doc);
+  let diagramIdx = 0;
   const pdf = new jsPDF({ unit: "pt", format: "letter" });
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
@@ -121,7 +180,9 @@ export function exportDocumentToPDF(doc, settings = null) {
         while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) { code.push(lines[i]); i++; }
         i++;
         if (lang === "mermaid") {
-          writeWrapped("[ Diagram — view the interactive version in the app ]", { fontSize: 9, color: 110 });
+          const dimg = diagramImages[diagramIdx++];
+          if (dimg) addImage(dimg);
+          else writeWrapped("[ Diagram ]", { fontSize: 9, color: 110 });
         } else {
           pdf.setFont("courier", "normal"); pdf.setFontSize(9); pdf.setTextColor(40);
           code.forEach((cl) => { ensure(12); pdf.text(cl, margin + 6, y); y += 12; });

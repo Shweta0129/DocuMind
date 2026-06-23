@@ -204,6 +204,8 @@ async def generate_document(doc_type_meta: Dict[str, Any], inputs: Dict[str, Any
 
 {guidance_block}
 
+Use EVERY detail the user provided in "User Inputs" above — incorporate all specifics (names, systems, metrics, constraints, stakeholders, requirements) into the relevant sections. Do not drop, generalize, or summarize away any provided detail.
+
 Formatting: keep prose tight; put structured lists into Markdown tables; add a Mermaid diagram in sections where a process/architecture/data view aids understanding.
 
 Return ONLY the JSON object."""

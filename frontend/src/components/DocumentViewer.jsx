@@ -100,7 +100,14 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
     } catch { toast.error("Could not copy"); }
   };
 
-  const handlePdf = () => { exportDocumentToPDF(doc, settings); toast.success("PDF download started"); };
+  const handlePdf = async () => {
+    try {
+      await exportDocumentToPDF(doc, settings);
+      toast.success("PDF download started");
+    } catch {
+      toast.error("Could not export PDF");
+    }
+  };
   const handleDocx = async () => {
     try {
       await api.downloadDocx(doc.id);

@@ -190,6 +190,25 @@ async def _register_org_and_user(
     user.setdefault("google_sub", None)
     await _db.users.insert_one(user)
     user.pop("_id", None)
+
+    # Seed per-org settings from signup so branding appears in documents without
+    # the user re-typing it. They can change any of this later in Branding & Settings.
+    await _db.settings.update_one(
+        {"org_id": org["id"]},
+        {"$setOnInsert": {
+            "org_id": org["id"],
+            "company_name": org["name"],
+            "company_logo_url": "",
+            "project_name": "",
+            "document_id": "",
+            "version_number": "",
+            "author": (name or "").strip(),
+            "reviewer": "",
+            "approver": "",
+            "page_layout": "letter",
+        }},
+        upsert=True,
+    )
     return user
 
 
