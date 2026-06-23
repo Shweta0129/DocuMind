@@ -58,10 +58,13 @@ async def read_upload(file: UploadFile, max_bytes: int = MAX_UPLOAD_BYTES) -> by
 # URL / SSRF validation (for stored logo URLs and any future server-side fetch)
 # --------------------------------------------------------------------------- #
 def validate_public_url(url: str | None) -> str:
-    """Allow only http(s) URLs that do not point at private/loopback hosts."""
+    """Allow uploaded image data-URIs, or http(s) URLs not pointing at private hosts."""
     if not url:
         return ""
     url = url.strip()
+    # Uploaded logo stored inline as a data-URI image — safe to embed, not fetched.
+    if url.startswith("data:image/"):
+        return url
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         raise HTTPException(status_code=400, detail="Logo URL must be http(s)")

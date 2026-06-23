@@ -94,6 +94,7 @@ class GenerateRequest(BaseModel):
     industry: Optional[str] = None
     parent_id: Optional[str] = None
     source_doc_id: Optional[str] = None
+    template_id: Optional[str] = None
 
 
 class CompletenessRequest(BaseModel):
@@ -249,8 +250,15 @@ def _next_version(existing: List[str]) -> str:
 
 async def _generate(req: GenerateRequest, user: Dict[str, Any]) -> Dict[str, Any]:
     _require_type(req.type)
+    template_structure = ""
+    if req.template_id:
+        tpl = await db.templates.find_one(org_scope(user, {"id": req.template_id}), {"_id": 0})
+        if tpl:
+            template_structure = tpl.get("structure_excerpt", "")
     try:
-        ai_result = await ai.generate_document(DOC_TYPES[req.type], req.inputs, req.industry or "")
+        ai_result = await ai.generate_document(
+            DOC_TYPES[req.type], req.inputs, req.industry or "", template_structure=template_structure
+        )
     except Exception as e:
         raise _ai_error(e)
     return await _persist_new_document(req, ai_result, user)

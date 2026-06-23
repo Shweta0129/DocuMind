@@ -45,7 +45,7 @@ export default function Settings() {
       <form className="nb-card p-5 md:p-6 space-y-4" onSubmit={save} data-testid="settings-form">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input label="Company name" value={s.company_name} onChange={(v) => setS({ ...s, company_name: v })} testid="settings-company" />
-          <Input label="Company logo URL" value={s.company_logo_url} onChange={(v) => setS({ ...s, company_logo_url: v })} testid="settings-logo" />
+          <LogoField value={s.company_logo_url} onChange={(v) => setS({ ...s, company_logo_url: v })} />
           <Input label="Default project name" value={s.project_name} onChange={(v) => setS({ ...s, project_name: v })} testid="settings-project" />
           <Input label="Default document ID" value={s.document_id} onChange={(v) => setS({ ...s, document_id: v })} testid="settings-doc-id" />
           <Input label="Default version" value={s.version_number} onChange={(v) => setS({ ...s, version_number: v })} testid="settings-version" />
@@ -67,6 +67,39 @@ function Input({ label, value, onChange, testid }) {
     <div>
       <label className="label-eyebrow block mb-1">{label}</label>
       <input className="nb-input" value={value || ""} onChange={(e) => onChange(e.target.value)} data-testid={testid} />
+    </div>
+  );
+}
+
+function LogoField({ value, onChange }) {
+  const upload = (file) => {
+    if (!file) return;
+    if (file.size > 1024 * 1024) { toast.error("Logo too large (max 1 MB)"); return; }
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result); // data-URI, embeds in exports
+    reader.readAsDataURL(file);
+  };
+  const isImg = (value || "").startsWith("data:image/") || /^https?:\/\//.test(value || "");
+  return (
+    <div>
+      <label className="label-eyebrow block mb-1">Company logo</label>
+      <div className="flex items-center gap-3">
+        {isImg && (
+          <img src={value} alt="company brand" className="h-9 w-9 object-contain border-2 border-[var(--ink)] rounded" />
+        )}
+        <label className="nb-btn nb-btn-ghost cursor-pointer" data-testid="settings-logo-upload">
+          Upload logo
+          <input type="file" accept="image/*" hidden onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
+        </label>
+        {value && <button type="button" className="nb-chip" onClick={() => onChange("")}>Clear</button>}
+      </div>
+      <input
+        className="nb-input mt-2"
+        placeholder="…or paste a direct image URL"
+        value={(value || "").startsWith("data:") ? "" : (value || "")}
+        onChange={(e) => onChange(e.target.value)}
+        data-testid="settings-logo"
+      />
     </div>
   );
 }

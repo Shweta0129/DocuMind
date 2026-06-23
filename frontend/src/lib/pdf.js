@@ -85,6 +85,18 @@ export async function exportDocumentToPDF(doc, settings = null) {
     lines.forEach((ln) => { ensure(lh); pdf.text(ln, margin + (opts.indent || 0), y); y += lh; });
   };
 
+  // ---- Company logo (uploaded data-URI) ----
+  const logo = settings?.company_logo_url;
+  if (logo && logo.startsWith("data:image/")) {
+    try {
+      const lp = pdf.getImageProperties(logo);
+      const lh = 36;
+      const lw = lh * (lp.width / lp.height);
+      pdf.addImage(logo, lp.fileType || "PNG", margin, y, lw, lh);
+      y += lh + 8;
+    } catch { /* ignore bad logo */ }
+  }
+
   // ---- Title ----
   pdf.setFont("helvetica", "bold"); pdf.setFontSize(22); pdf.setTextColor(15);
   pdf.splitTextToSize(doc.title || "Untitled Document", contentW).forEach((ln) => {

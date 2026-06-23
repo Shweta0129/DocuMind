@@ -185,7 +185,7 @@ Return ONLY valid JSON in this schema. Do NOT wrap the JSON itself in code fence
 """
 
 
-async def generate_document(doc_type_meta: Dict[str, Any], inputs: Dict[str, Any], industry: str = "") -> Dict[str, Any]:
+async def generate_document(doc_type_meta: Dict[str, Any], inputs: Dict[str, Any], industry: str = "", template_structure: str = "") -> Dict[str, Any]:
     system = GEN_SYSTEM.format(
         doc_label=doc_type_meta["label"],
         industry=industry or "General Business",
@@ -193,6 +193,15 @@ async def generate_document(doc_type_meta: Dict[str, Any], inputs: Dict[str, Any
     sections = "\n".join(f"  {i+1}. {s}" for i, s in enumerate(doc_type_meta["sections"]))
     guidance = doc_type_meta.get("guidance", "")
     guidance_block = f"## Type-specific guidance\n{guidance}" if guidance else ""
+    if template_structure:
+        guidance_block += (
+            "\n\n## Company Template (FOLLOW THIS FORMAT)\n"
+            "The customer uploaded their own template below. Match its section structure, "
+            "headings, ordering, and style as closely as possible, while still covering the "
+            "required sections above. Where the template and required sections overlap, prefer "
+            "the template's wording.\n---\n"
+            f"{template_structure[:4000]}\n---"
+        )
     user = f"""## Industry
 {industry or "General Business"}
 

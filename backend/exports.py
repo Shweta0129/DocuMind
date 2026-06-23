@@ -11,6 +11,16 @@ import base64
 _DATA_IMG_RE = re.compile(r"^\s*!\[[^\]]*\]\(\s*(data:image/[A-Za-z0-9.+-]+;base64,([A-Za-z0-9+/=\s]+))\)\s*$")
 
 
+def _decode_data_uri_image(uri):
+    """Return image bytes from a data:image/...;base64,... URI, else None."""
+    if not uri or not isinstance(uri, str) or not uri.startswith("data:image/") or "," not in uri:
+        return None
+    try:
+        return base64.b64decode(re.sub(r"\s+", "", uri.split(",", 1)[1]))
+    except Exception:
+        return None
+
+
 def _add_table_from_md(doc, md_table_lines):
     rows = [
         [c.strip() for c in line.strip().strip("|").split("|")]
@@ -213,6 +223,14 @@ def build_docx(document, settings=None) -> bytes:
     header = section.header
     hp = header.paragraphs[0]
     hp.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    # Embed the company logo (uploaded data-URI) if present.
+    logo_bytes = _decode_data_uri_image(s.get("company_logo_url"))
+    if logo_bytes:
+        try:
+            hp.add_run().add_picture(BytesIO(logo_bytes), height=Inches(0.4))
+            hp.add_run("   ")
+        except Exception:
+            pass
     header_bits = []
     if s.get("company_name"):
         header_bits.append(s["company_name"])
@@ -220,7 +238,7 @@ def build_docx(document, settings=None) -> bytes:
         header_bits.append(s["project_name"])
     if s.get("document_id"):
         header_bits.append(f"Doc ID: {s['document_id']}")
-    hp.text = "  ·  ".join(header_bits) if header_bits else (s.get("company_name") or "DocuMind AI")
+    hp.add_run("  -  ".join(header_bits) if header_bits else (s.get("company_name") or "DocuMind AI"))
 
     # ---- Footer ----
     footer = section.footer

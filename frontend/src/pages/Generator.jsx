@@ -25,6 +25,12 @@ export default function Generator() {
   const [generating, setGenerating] = useState(false);
   const [checking, setChecking] = useState(false);
   const [check, setCheck] = useState(null);
+  const [templates, setTemplates] = useState([]);
+  const [templateId, setTemplateId] = useState("");
+
+  useEffect(() => {
+    api.listTemplates().then(setTemplates).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!config) return;
@@ -73,7 +79,7 @@ export default function Generator() {
     setGenerating(true);
     setDoc(null);
     try {
-      const result = await api.generate({ type, inputs: values, industry });
+      const result = await api.generate({ type, inputs: values, industry, template_id: templateId || undefined });
       setDoc(result);
       toast.success("Document generated");
     } catch (e) {
@@ -125,18 +131,35 @@ export default function Generator() {
           </div>
         </div>
 
-        {/* Industry selector */}
-        <div className="flex items-center gap-2">
-          <label className="label-eyebrow">Industry</label>
-          <select
-            className="nb-input !py-2 !w-44"
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-            data-testid="industry-selector"
-          >
-            <option value="">General</option>
-            {industries.map((i) => (<option key={i} value={i}>{i}</option>))}
-          </select>
+        {/* Industry + Template selectors */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="label-eyebrow">Industry</label>
+            <select
+              className="nb-input !py-2 !w-44"
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              data-testid="industry-selector"
+            >
+              <option value="">General</option>
+              {industries.map((i) => (<option key={i} value={i}>{i}</option>))}
+            </select>
+          </div>
+          {templates.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="label-eyebrow">Template</label>
+              <select
+                className="nb-input !py-2 !w-52"
+                value={templateId}
+                onChange={(e) => setTemplateId(e.target.value)}
+                data-testid="template-selector"
+                title="Generate following your company template's structure"
+              >
+                <option value="">None (default structure)</option>
+                {templates.map((t) => (<option key={t.id} value={t.id}>{t.name}</option>))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 

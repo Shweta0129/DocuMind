@@ -275,7 +275,12 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
       {/* Document Control (company header/footer info + sign-off) */}
       {!editing && settings && (settings.company_name || settings.author || settings.reviewer || settings.approver || settings.document_id || settings.project_name) && (
         <div className="nb-card p-4 mb-6 bg-[var(--paper)]" data-testid="document-control">
-          <div className="label-eyebrow mb-2">Document Control</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="label-eyebrow">Document Control</div>
+            {settings.company_logo_url && (
+              <img src={settings.company_logo_url} alt="company logo" className="h-8 object-contain" />
+            )}
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
             {[
               ["Company", settings.company_name],
