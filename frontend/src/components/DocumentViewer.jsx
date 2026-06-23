@@ -7,8 +7,21 @@ import { useCatalog, iconForName } from "../lib/catalog";
 import { toast } from "sonner";
 import {
   Copy, Download, Pencil, RotateCcw, Check, X, Save, Wand2,
-  GitBranch, FileText, ChevronRight, History as HistoryIcon, FileDown,
+  GitBranch, FileText, ChevronRight, History as HistoryIcon, FileDown, Image as ImageIcon,
 } from "lucide-react";
+import mermaid from "mermaid";
+
+let _mermaidReady = false;
+function ensureMermaid() {
+  if (_mermaidReady) return;
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "strict",
+    theme: "neutral",
+    flowchart: { useMaxWidth: true },
+  });
+  _mermaidReady = true;
+}
 
 export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerating, onAfterAction }) {
   const [editing, setEditing] = useState(false);
@@ -18,6 +31,7 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
   const [showPipeline, setShowPipeline] = useState(false);
   const [versions, setVersions] = useState([]);
   const [showVersions, setShowVersions] = useState(false);
+  const [settings, setSettings] = useState(null);
   const viewerRef = useRef(null);
   const navigate = useNavigate();
   const { pipeline, byKey } = useCatalog();
@@ -29,6 +43,38 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
       api.listVersions(doc.id).then(setVersions).catch(() => {});
     }
   }, [showVersions, doc.id]);
+
+  useEffect(() => {
+    api.getSettings().then(setSettings).catch(() => {});
+  }, []);
+
+  const insertImage = (sectionIdx, file) => {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { toast.error("Image too large (max 3 MB)"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      setDraft((d) => ({
+        ...d,
+        sections: d.sections.map((s, idx) =>
+          idx === sectionIdx ? { ...s, content: `${s.content || ""}\n\n![image](${dataUrl})\n` } : s),
+      }));
+      toast.success("Image inserted — Save to keep it");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Render any Mermaid diagrams in the document body after content updates.
+  useEffect(() => {
+    if (editing) return;
+    const el = viewerRef.current;
+    if (!el) return;
+    ensureMermaid();
+    const nodes = el.querySelectorAll('.mermaid:not([data-processed="true"])');
+    if (nodes.length) {
+      mermaid.run({ nodes }).catch(() => {});
+    }
+  }, [doc?.id, doc?.updated_at, editing]);
 
   const startEdit = () => {
     setDraft({
@@ -54,7 +100,7 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
     } catch { toast.error("Could not copy"); }
   };
 
-  const handlePdf = () => { exportDocumentToPDF(doc); toast.success("PDF download started"); };
+  const handlePdf = () => { exportDocumentToPDF(doc, settings); toast.success("PDF download started"); };
   const handleDocx = async () => {
     try {
       await api.downloadDocx(doc.id);
@@ -219,6 +265,29 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
         </>
       )}
 
+      {/* Document Control (company header/footer info + sign-off) */}
+      {!editing && settings && (settings.company_name || settings.author || settings.reviewer || settings.approver || settings.document_id || settings.project_name) && (
+        <div className="nb-card p-4 mb-6 bg-[var(--paper)]" data-testid="document-control">
+          <div className="label-eyebrow mb-2">Document Control</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+            {[
+              ["Company", settings.company_name],
+              ["Project", settings.project_name],
+              ["Document ID", settings.document_id],
+              ["Version", `v${settings.version_number || doc.version_number || "1.0"}`],
+              ["Author", settings.author],
+              ["Reviewer", settings.reviewer],
+              ["Approver", settings.approver],
+            ].filter(([, v]) => v).map(([k, v]) => (
+              <div key={k}>
+                <span className="text-[var(--muted)] uppercase text-[10px] tracking-wider block">{k}</span>
+                <span className="font-semibold">{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Sections */}
       <div ref={viewerRef} className="docu-prose">
         {(editing ? draft.sections : doc.content?.sections || []).map((sec, i) => (
@@ -245,6 +314,15 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
                   }}
                   data-testid={`edit-section-content-${i}`}
                 />
+                <label className="nb-chip cursor-pointer mt-2 inline-flex" data-testid={`insert-image-${i}`}>
+                  <ImageIcon className="w-3 h-3" /> Insert image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) => { insertImage(i, e.target.files?.[0]); e.target.value = ""; }}
+                  />
+                </label>
               </>
             ) : (
               <>

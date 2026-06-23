@@ -11,6 +11,9 @@ function escapeHtml(s) {
 
 function renderInline(text) {
   let t = escapeHtml(text);
+  // images (must run before links). Only allow data: and http(s): sources.
+  t = t.replace(/!\[([^\]]*)\]\((data:image\/[^)]+|https?:\/\/[^)]+)\)/g,
+    '<img alt="$1" src="$2" class="docu-img" />');
   // bold
   t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   // italic
@@ -41,6 +44,28 @@ export function markdownToHtml(md) {
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
+
+    // Fenced code blocks — ```mermaid becomes a renderable diagram node,
+    // any other fenced block becomes a <pre><code> block.
+    const fence = /^\s*```\s*([\w-]*)\s*$/.exec(line);
+    if (fence) {
+      const lang = (fence[1] || "").toLowerCase();
+      const code = [];
+      i++;
+      while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) {
+        code.push(lines[i]);
+        i++;
+      }
+      i++; // skip closing fence
+      const raw = code.join("\n");
+      if (lang === "mermaid") {
+        // mermaid reads textContent; escaping is safe (entities decode back).
+        out.push(`<div class="mermaid">${escapeHtml(raw)}</div>`);
+      } else {
+        out.push(`<pre class="code-block"><code>${escapeHtml(raw)}</code></pre>`);
+      }
+      continue;
+    }
 
     // Headings
     const hMatch = /^(#{1,6})\s+(.+)$/.exec(line);

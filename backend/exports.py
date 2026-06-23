@@ -6,6 +6,9 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 import re
+import base64
+
+_DATA_IMG_RE = re.compile(r"^\s*!\[[^\]]*\]\(\s*(data:image/[A-Za-z0-9.+-]+;base64,([A-Za-z0-9+/=\s]+))\)\s*$")
 
 
 def _add_table_from_md(doc, md_table_lines):
@@ -54,6 +57,40 @@ def _render_markdown(doc, md):
     i = 0
     while i < len(lines):
         line = lines[i].rstrip()
+        # fenced code block (```mermaid ... ```): we can't render Mermaid to an
+        # image server-side, so emit a labeled monospaced block. Diagrams render
+        # fully in the in-app viewer; user images below DO embed as pictures.
+        fence = re.match(r"^\s*```\s*([\w-]*)\s*$", line)
+        if fence:
+            lang = (fence.group(1) or "").lower()
+            i += 1
+            code = []
+            while i < len(lines) and not re.match(r"^\s*```\s*$", lines[i]):
+                code.append(lines[i])
+                i += 1
+            i += 1  # skip closing fence
+            label = "Diagram (Mermaid — view interactive version in the app)" if lang == "mermaid" else (lang or "code")
+            lp = doc.add_paragraph()
+            lr = lp.add_run(label)
+            lr.italic = True
+            lr.font.size = Pt(9)
+            lr.font.color.rgb = RGBColor(0x6E, 0x6E, 0x6E)
+            for cl in code:
+                cp = doc.add_paragraph()
+                cr = cp.add_run(cl)
+                cr.font.name = "Consolas"
+                cr.font.size = Pt(9)
+            continue
+        # embedded user image (data-URI) -> real picture
+        img = _DATA_IMG_RE.match(line)
+        if img:
+            try:
+                raw = base64.b64decode(re.sub(r"\s+", "", img.group(2)))
+                doc.add_picture(BytesIO(raw), width=Inches(5.8))
+            except Exception:
+                pass
+            i += 1
+            continue
         # table
         if re.match(r"^\s*\|.+\|\s*$", line) and i + 1 < len(lines) and re.match(r"^\s*\|?[\s\-:|]+\|?\s*$", lines[i + 1]):
             tbl = [line, lines[i + 1]]
@@ -118,6 +155,47 @@ def _add_page_number(paragraph):
     run._r.append(fldChar2)
 
 
+def _add_control_block(doc, document, s):
+    """Document Control: company/version properties + author/reviewer/approver sign-off."""
+    from datetime import datetime, timezone
+
+    doc.add_heading("Document Control", level=2)
+    props = []
+    if s.get("company_name"):
+        props.append(("Company", s["company_name"]))
+    if s.get("project_name"):
+        props.append(("Project", s["project_name"]))
+    if s.get("document_id"):
+        props.append(("Document ID", s["document_id"]))
+    props.append(("Document Type", (document.get("type") or "").upper()))
+    props.append(("Version", f"v{s.get('version_number') or document.get('version_number', '1.0')}"))
+    props.append(("Date", datetime.now(timezone.utc).strftime("%Y-%m-%d")))
+
+    pt = doc.add_table(rows=0, cols=2)
+    pt.style = "Light Grid Accent 1"
+    for k, v in props:
+        cells = pt.add_row().cells
+        cells[0].text = k
+        for run in cells[0].paragraphs[0].runs:
+            run.bold = True
+        cells[1].text = str(v)
+
+    signers = [("Author", s.get("author")), ("Reviewer", s.get("reviewer")), ("Approver", s.get("approver"))]
+    if any(name for _, name in signers):
+        doc.add_paragraph()
+        st = doc.add_table(rows=1, cols=4)
+        st.style = "Light Grid Accent 1"
+        for j, h in enumerate(["Role", "Name", "Signature", "Date"]):
+            st.rows[0].cells[j].text = h
+            for run in st.rows[0].cells[j].paragraphs[0].runs:
+                run.bold = True
+        for role, name in signers:
+            cells = st.add_row().cells
+            cells[0].text = role
+            cells[1].text = name or ""
+    doc.add_paragraph().add_run("─" * 60)
+
+
 def build_docx(document, settings=None) -> bytes:
     """Build a .docx file from a stored Document object and optional header/footer settings."""
     s = settings or {}
@@ -180,6 +258,9 @@ def build_docx(document, settings=None) -> bytes:
     meta_run.font.color.rgb = RGBColor(0x6E, 0x6E, 0x6E)
 
     doc.add_paragraph().add_run("─" * 60)
+
+    # Document Control (company header/footer info + sign-off)
+    _add_control_block(doc, document, s)
 
     # Sections
     for sec in document.get("content", {}).get("sections", []):
