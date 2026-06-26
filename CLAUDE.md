@@ -94,12 +94,26 @@ Open http://localhost:3000 → Create account. Health: http://localhost:8000/hea
 
 ## Done so far (committed)
 Auth + multi-tenant isolation; provider-agnostic LLM; security hardening
-(uploads/SSRF/CORS/rate-limit/generic errors); table-first concise generation;
-Mermaid diagrams in viewer + PDF + DOCX; user image upload; Document Control +
-sign-off + header/footer; logo upload/embed; template-driven generation;
-forgot-password (Resend); removed ALL Emergent branding + PostHog tracking;
-auto-fill company branding from signup. Verified end-to-end (Atlas + Groq):
-register → generate → isolation → DOCX/PDF export.
+(uploads/SSRF/CORS/rate-limit/generic errors/**security headers**); table-first
+concise generation; Mermaid diagrams in viewer + PDF + DOCX; user image upload;
+Document Control + sign-off + header/footer; logo upload/embed; template-driven
+generation; forgot-password (Resend); removed ALL Emergent branding + PostHog
+tracking; auto-fill company branding from signup. **Subscription/billing layer**
+(`plans.py` config-driven + `billing.py` Razorpay): 7-day-OR-3-doc trial, gating
+(402) on all AI/export routes, usage metering, checkout + signature verify,
+Pricing page. **Deploy configs**: `backend/Dockerfile`, `render.yaml`,
+`frontend/vercel.json`, `DEPLOYMENT.md`. Verified end-to-end (Atlas + Groq) +
+billing gating tested in-process.
+
+## Billing / subscription
+- `backend/plans.py` — PLANS dict (free/starter_weekly/pro_monthly/pro_yearly/
+  enterprise), `entitlement(org)`, `new_trial_subscription()`. Trial = 7 days OR
+  3 docs. Prices in paise INR.
+- `backend/billing.py` — `/api/billing/{plans,subscription,checkout,verify,webhook}`,
+  `require_generation_access` dep (used as `GenAccess` in server.py), `record_generation`.
+- Org doc has `subscription:{plan,status,trial_started_at,trial_docs_used,
+  current_period_end,razorpay_*}`. Seeded on signup; backfilled on startup.
+- Frontend `pages/Pricing.jsx` loads Razorpay checkout.js; api 402 → /pricing.
 
 ## Decisions locked
 - DB: **MongoDB** (Atlas free tier). Multi-tenant by org_id; on-prem = single org.
@@ -110,13 +124,15 @@ register → generate → isolation → DOCX/PDF export.
 - Deploy target: **Vercel** (frontend) + **Render/Railway** (backend) + Atlas.
 
 ## Open / next (in order)
-1. **Dark mode** color fix — awaiting user's dark-mode screenshot.
-2. **Pricing/subscription layer** (Razorpay): org subscription model, trial
-   tracking (7d or 3 docs), checkout + webhook, **gate generation/export** after
-   trial, pricing page + billing UI. Needs user's Razorpay test keys + confirmed prices.
-3. **Deploy first cut** (Vercel + Render + Atlas; locked CORS, prod smoke test).
-4. Later/enterprise: approval workflow + audit trail, integrations
-   (Jira/Confluence/SharePoint), collaboration, privacy policy.
+1. **Deploy the first cut** — configs ready (`DEPLOYMENT.md`); needs user to push
+   to a PRIVATE GitHub repo + create Render/Vercel projects + set env vars + Atlas
+   `0.0.0.0/0`. Then prod smoke test (incl. a Razorpay test payment).
+2. **Auth hardening (post-launch P1):** refresh tokens + access-token expiry,
+   email verification, change-password, logout-all. (Currently 7-day JWT, no revoke.)
+3. **Project visibility model (P2):** Private/Team/Org/Public (currently org-scoped only).
+4. **Dark mode** polish — verify contrast (user said added; confirm).
+5. Razorpay **auto-recurring** (Subscriptions API) — first cut is one-time Orders per period.
+6. Later/enterprise: approval workflow + audit trail, integrations, collaboration, privacy policy.
 
 ## Pre-launch reminders
 - Rotate the Groq key + Atlas password (were shared in chat).
