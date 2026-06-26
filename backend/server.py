@@ -26,6 +26,8 @@ from doc_types import DOC_TYPES, CATEGORIES, INDUSTRIES, PIPELINE, doc_type_dict
 import ai_engine as ai
 import llm_client
 import auth
+import billing
+import plans
 import security
 from exports import build_docx, extract_text_from_pdf, extract_text_from_docx
 
@@ -38,6 +40,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 
 auth.init(db)
+billing.init(db)
 
 app = FastAPI(title="DocuMind AI")
 api = APIRouter(prefix="/api")
@@ -46,6 +49,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 log = logging.getLogger("documind")
 
 CurrentUser = Depends(auth.get_current_user)
+# Gated dependency for AI/export routes: enforces active subscription/trial (402).
+GenAccess = Depends(billing.require_generation_access)
 ai_rate = Depends(security.rate_limit("ai", 30, 60))
 
 
@@ -179,7 +184,7 @@ async def stats(user: Dict[str, Any] = CurrentUser):
 # Completeness
 # =========================================================
 @api.post("/completeness", dependencies=[ai_rate])
-async def completeness(req: CompletenessRequest, user: Dict[str, Any] = CurrentUser):
+async def completeness(req: CompletenessRequest, user: Dict[str, Any] = GenAccess):
     meta = _require_type(req.type)
     try:
         return await ai.completeness_check(meta, req.inputs, req.industry or "")
@@ -261,11 +266,13 @@ async def _generate(req: GenerateRequest, user: Dict[str, Any]) -> Dict[str, Any
         )
     except Exception as e:
         raise _ai_error(e)
-    return await _persist_new_document(req, ai_result, user)
+    record = await _persist_new_document(req, ai_result, user)
+    await billing.record_generation(user["org_id"])  # meters trial usage
+    return record
 
 
 @api.post("/generate", dependencies=[ai_rate])
-async def generate(req: GenerateRequest, user: Dict[str, Any] = CurrentUser):
+async def generate(req: GenerateRequest, user: Dict[str, Any] = GenAccess):
     return await _generate(req, user)
 
 
@@ -280,7 +287,7 @@ class PipelineRequest(BaseModel):
 
 
 @api.post("/pipeline/generate", dependencies=[ai_rate])
-async def pipeline_generate(req: PipelineRequest, user: Dict[str, Any] = CurrentUser):
+async def pipeline_generate(req: PipelineRequest, user: Dict[str, Any] = GenAccess):
     source = await db.documents.find_one(doc_scope(user, {"id": req.source_id}), {"_id": 0})
     if not source:
         raise HTTPException(status_code=404, detail="Source document not found")
@@ -409,7 +416,7 @@ async def list_versions(doc_id: str, user: Dict[str, Any] = CurrentUser):
 
 
 @api.post("/documents/{doc_id}/versions", dependencies=[ai_rate])
-async def create_new_version(doc_id: str, user: Dict[str, Any] = CurrentUser):
+async def create_new_version(doc_id: str, user: Dict[str, Any] = GenAccess):
     doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -426,7 +433,7 @@ async def create_new_version(doc_id: str, user: Dict[str, Any] = CurrentUser):
 # Interview / requirement-gathering engine
 # =========================================================
 @api.post("/interview/start", dependencies=[ai_rate])
-async def interview_start(req: InterviewStart, user: Dict[str, Any] = CurrentUser):
+async def interview_start(req: InterviewStart, user: Dict[str, Any] = GenAccess):
     meta = _require_type(req.type)
     conv_id = str(uuid.uuid4())
     industry = req.industry or ""
@@ -451,7 +458,7 @@ async def interview_start(req: InterviewStart, user: Dict[str, Any] = CurrentUse
 
 
 @api.post("/interview/{conv_id}/message", dependencies=[ai_rate])
-async def interview_message(conv_id: str, body: InterviewMessage, user: Dict[str, Any] = CurrentUser):
+async def interview_message(conv_id: str, body: InterviewMessage, user: Dict[str, Any] = GenAccess):
     convo = await db.conversations.find_one(org_scope(user, {"id": conv_id}), {"_id": 0})
     if not convo:
         raise HTTPException(status_code=404, detail="Interview not found")
@@ -481,7 +488,7 @@ async def interview_get(conv_id: str, user: Dict[str, Any] = CurrentUser):
 
 
 @api.post("/interview/{conv_id}/generate", dependencies=[ai_rate])
-async def interview_generate(conv_id: str, user: Dict[str, Any] = CurrentUser):
+async def interview_generate(conv_id: str, user: Dict[str, Any] = GenAccess):
     convo = await db.conversations.find_one(org_scope(user, {"id": conv_id}), {"_id": 0})
     if not convo:
         raise HTTPException(status_code=404, detail="Interview not found")
@@ -494,7 +501,7 @@ async def interview_generate(conv_id: str, user: Dict[str, Any] = CurrentUser):
 # Document Reviewer (file upload)
 # =========================================================
 @api.post("/review/upload", dependencies=[ai_rate])
-async def review_upload(user: Dict[str, Any] = CurrentUser, file: UploadFile = File(...)):
+async def review_upload(user: Dict[str, Any] = GenAccess, file: UploadFile = File(...)):
     ext = security.check_extension(file.filename)
     data = await security.read_upload(file)
     if ext == ".pdf":
@@ -668,7 +675,7 @@ async def _build_docx_response(doc: Dict[str, Any], user: Dict[str, Any], templa
 
 
 @api.get("/export/docx/{doc_id}")
-async def export_docx(doc_id: str, user: Dict[str, Any] = CurrentUser, template_id: Optional[str] = None):
+async def export_docx(doc_id: str, user: Dict[str, Any] = GenAccess, template_id: Optional[str] = None):
     doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -684,7 +691,7 @@ class DocxExportBody(BaseModel):
 
 
 @api.post("/export/docx/{doc_id}")
-async def export_docx_post(doc_id: str, body: DocxExportBody, user: Dict[str, Any] = CurrentUser):
+async def export_docx_post(doc_id: str, body: DocxExportBody, user: Dict[str, Any] = GenAccess):
     doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -702,7 +709,7 @@ class ImproveRequest(BaseModel):
 
 
 @api.post("/documents/{doc_id}/improve", dependencies=[ai_rate])
-async def improve(doc_id: str, req: ImproveRequest, user: Dict[str, Any] = CurrentUser):
+async def improve(doc_id: str, req: ImproveRequest, user: Dict[str, Any] = GenAccess):
     doc = await db.documents.find_one(doc_scope(user, {"id": doc_id}), {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -727,6 +734,7 @@ async def improve(doc_id: str, req: ImproveRequest, user: Dict[str, Any] = Curre
 
 # ---------------- wire up ----------------
 api.include_router(auth.router)
+api.include_router(billing.router)
 app.include_router(api)
 
 _cors_env = os.environ.get("CORS_ORIGINS", "")
@@ -767,5 +775,10 @@ async def ensure_indexes():
         await db.users.create_index([("email", 1)], unique=True)
         await db.users.create_index([("google_sub", 1)])
         await db.organizations.create_index([("id", 1)], unique=True)
+        # Backfill: grant a fresh trial to any pre-existing org without a subscription.
+        await db.organizations.update_many(
+            {"subscription": {"$exists": False}},
+            {"$set": {"subscription": plans.new_trial_subscription()}},
+        )
     except Exception:
         log.exception("Index creation failed (continuing)")

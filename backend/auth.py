@@ -24,6 +24,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 from security import rate_limit
+import plans
 
 log = logging.getLogger("documind.auth")
 
@@ -175,6 +176,7 @@ async def _create_org(name: str, owner_user_id: str) -> Dict[str, Any]:
         "id": str(uuid.uuid4()),
         "name": name.strip() or "My Workspace",
         "owner_user_id": owner_user_id,
+        "subscription": plans.new_trial_subscription(),
         "created_at": _now_iso(),
     }
     await _db.organizations.insert_one(org)

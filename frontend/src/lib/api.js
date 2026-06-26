@@ -30,6 +30,10 @@ client.interceptors.response.use(
         window.location.href = "/login";
       }
     }
+    // 402 = trial/subscription lapsed → send the user to the pricing page.
+    if (err?.response?.status === 402 && !window.location.pathname.startsWith("/pricing")) {
+      window.location.href = "/pricing";
+    }
     return Promise.reject(err);
   }
 );
@@ -43,6 +47,12 @@ export const api = {
   me: () => client.get(`/auth/me`).then(r => r.data),
   forgotPassword: (email) => client.post(`/auth/forgot-password`, { email }).then(r => r.data),
   resetPassword: (token, password) => client.post(`/auth/reset-password`, { token, password }).then(r => r.data),
+
+  // billing
+  billingPlans: () => client.get(`/billing/plans`).then(r => r.data),
+  subscription: () => client.get(`/billing/subscription`).then(r => r.data),
+  checkout: (plan_id) => client.post(`/billing/checkout`, { plan_id }).then(r => r.data),
+  verifyPayment: (payload) => client.post(`/billing/verify`, payload).then(r => r.data),
 
   // catalog & stats
   catalog: () => client.get(`/catalog`).then(r => r.data),

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sparkles, LayoutDashboard, History, Sun, Moon, LogOut,
-  FileSearch, LayoutTemplate, Settings as Cog, ChevronDown, ChevronRight,
+  FileSearch, LayoutTemplate, Settings as Cog, ChevronDown, ChevronRight, Crown,
 } from "lucide-react";
 import { useTheme } from "../lib/theme";
 import { useCatalog, iconForName } from "../lib/catalog";
@@ -46,6 +46,7 @@ export default function Layout({ children }) {
           <NavItem to="/reviewer" icon={FileSearch} label="Document Reviewer" testid="nav-reviewer" />
           <NavItem to="/templates" icon={LayoutTemplate} label="Templates" testid="nav-templates" />
           <NavItem to="/settings" icon={Cog} label="Branding & Settings" testid="nav-settings" />
+          <NavItem to="/pricing" icon={Crown} label="Plans & Billing" testid="nav-pricing" />
 
           <div className="label-eyebrow px-3 mt-4 mb-1">Generators</div>
           {loading && (

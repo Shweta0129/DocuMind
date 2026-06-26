@@ -9,6 +9,7 @@ import DocumentPage from "@/pages/DocumentPage";
 import Reviewer from "@/pages/Reviewer";
 import Templates from "@/pages/Templates";
 import Settings from "@/pages/Settings";
+import Pricing from "@/pages/Pricing";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -57,6 +58,7 @@ function App() {
                 <Route path="/reviewer" element={<Reviewer />} />
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/pricing" element={<Pricing />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
