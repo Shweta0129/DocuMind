@@ -1,0 +1,48 @@
+# Render Blueprint for the DocuMind AI backend (free tier).
+# Deploy: Render Dashboard → New → Blueprint → connect this (private) repo.
+# Secrets (sync:false) are set in the Render dashboard, never committed.
+services:
+  - type: web
+    name: documind-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DB_NAME
+        value: documind
+      - key: LLM_PROVIDER
+        value: openai
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: OPENAI_MODEL
+        value: llama-3.3-70b-versatile
+      - key: MAIL_FROM
+        value: DocuMind AI <onboarding@resend.dev>
+      - key: MAX_UPLOAD_BYTES
+        value: "10485760"
+      # --- secrets / per-environment (set in Render dashboard) ---
+      - key: MONGO_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS          # e.g. https://your-app.vercel.app
+        sync: false
+      - key: APP_BASE_URL          # e.g. https://your-app.vercel.app
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
