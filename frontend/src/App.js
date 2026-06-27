@@ -2,6 +2,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 import Layout from "@/components/Layout";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Dashboard from "@/pages/Dashboard";
 import Generator from "@/pages/Generator";
 import History from "@/pages/History";
@@ -45,6 +46,7 @@ function App() {
       <AuthProvider>
         <div className="App">
           <BrowserRouter>
+            <ErrorBoundary>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -62,6 +64,7 @@ function App() {
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            </ErrorBoundary>
             <Toaster
               position="bottom-right"
               toastOptions={{

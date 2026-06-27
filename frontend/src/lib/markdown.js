@@ -2,6 +2,36 @@
 // Handles: headings, bold, italics, inline code, links, ordered/unordered lists,
 // blockquotes, simple GFM tables, and paragraphs.
 
+// Repair malformed Mermaid the model sometimes emits (inline in a sentence,
+// collapsed to one line, Unicode arrows). Mirrors backend _normalize_mermaid so
+// documents generated before that fix — already stored — still render here.
+const MERMAID_ARROWS = {
+  "⟶": "-->", "→": "-->", "➝": "-->", "➞": "-->",
+  "➜": "-->", "⇒": "-->", "⟹": "-->", "↦": "-->",
+  "⟼": "-->", "—>": "-->", "–>": "-->",
+};
+
+function normalizeMermaidBody(body) {
+  let b = body.trim();
+  for (const [uni, ascii] of Object.entries(MERMAID_ARROWS)) b = b.split(uni).join(ascii);
+  if (b.includes("\n")) return b; // already multi-line — trust it
+  const m = /^(flowchart|graph)\s+(TB|TD|BT|RL|LR)\b\s*/i.exec(b);
+  if (!m) return b;
+  const decl = b.slice(0, m[0].length).trim();
+  const rest = b
+    .slice(m[0].length)
+    .replace(/([\]}\)])\s+(?=[A-Za-z0-9_]+\s*(?:\[|\{|\(|-->|---|--x|==>|\|))/g, "$1\n");
+  return decl + "\n" + rest.trim();
+}
+
+function normalizeMermaid(md) {
+  if (!md || !md.includes("```")) return md;
+  return md
+    .replace(/```\s*mermaid\b([\s\S]*?)```/gi, (_, body) =>
+      "\n\n```mermaid\n" + normalizeMermaidBody(body) + "\n```\n\n")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 function escapeHtml(s) {
   return s
     .replace(/&/g, "&amp;")
@@ -9,19 +39,31 @@ function escapeHtml(s) {
     .replace(/>/g, "&gt;");
 }
 
+// Make a URL safe to drop into an HTML attribute: neutralize the quote chars
+// that could break out of the attribute and inject markup/handlers.
+function attrSafeUrl(url) {
+  return url.replace(/"/g, "%22").replace(/'/g, "%27");
+}
+
 function renderInline(text) {
   let t = escapeHtml(text);
-  // images (must run before links). Only allow data: and http(s): sources.
+  // images (must run before links). Only allow data:image and http(s) sources;
+  // escape quotes so a crafted URL can't break out of the src/alt attribute.
   t = t.replace(/!\[([^\]]*)\]\((data:image\/[^)]+|https?:\/\/[^)]+)\)/g,
-    '<img alt="$1" src="$2" class="docu-img" />');
+    (_, alt, src) => `<img alt="${attrSafeUrl(alt)}" src="${attrSafeUrl(src)}" class="docu-img" />`);
   // bold
   t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   // italic
   t = t.replace(/(^|[^*])\*(?!\s)([^*]+?)\*(?!\*)/g, "$1<em>$2</em>");
   // inline code
   t = t.replace(/`([^`]+?)`/g, "<code>$1</code>");
-  // links
-  t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+  // links — only allow http(s)/mailto/anchor/relative schemes (blocks
+  // javascript:, data:, vbscript: XSS), and escape quotes in the href.
+  t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+    const h = href.trim();
+    if (!/^(https?:|mailto:|#|\/)/i.test(h)) return label;
+    return `<a href="${attrSafeUrl(h)}" target="_blank" rel="noreferrer">${label}</a>`;
+  });
   return t;
 }
 
@@ -39,7 +81,7 @@ function renderTable(lines) {
 
 export function markdownToHtml(md) {
   if (!md) return "";
-  const lines = md.split(/\r?\n/);
+  const lines = normalizeMermaid(md).split(/\r?\n/);
   const out = [];
   let i = 0;
   while (i < lines.length) {
