@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "../lib/auth";
+import { apiError } from "../lib/api";
 import GoogleButton from "../components/GoogleButton";
 import { AuthShell, Field } from "./Login";
 import { REGISTER } from "../constants/testIds/auth";
@@ -13,7 +14,7 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const errMsg = (e) => e?.response?.data?.detail || "Could not create your account.";
+  const errMsg = (e) => apiError(e, "Could not create your account.");
 
   const submit = async (e) => {
     e.preventDefault();

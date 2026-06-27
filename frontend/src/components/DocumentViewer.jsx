@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { markdownToHtml } from "../lib/markdown";
 import { exportDocumentToPDF } from "../lib/pdf";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { useCatalog, iconForName } from "../lib/catalog";
 import { toast } from "sonner";
 import {
@@ -143,7 +143,7 @@ export default function DocumentViewer({ doc, onUpdate, onRegenerate, regenerati
       const out = await api.pipelineGenerate(doc.id, target, doc.industry);
       toast.success("Generated downstream document");
       navigate(`/document/${out.id}`);
-    } catch (e) { toast.error(e?.response?.data?.detail || "Pipeline generation failed"); }
+    } catch (e) { toast.error(apiError(e, "Pipeline generation failed")); }
   };
 
   return (

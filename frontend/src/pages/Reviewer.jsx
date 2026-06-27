@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { FileSearch, Upload, Trash2, ShieldCheck, AlertTriangle, FileText, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,7 +22,7 @@ export default function Reviewer() {
       setActive(r);
       load();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Upload / analysis failed");
+      toast.error(apiError(e, "Upload / analysis failed"));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

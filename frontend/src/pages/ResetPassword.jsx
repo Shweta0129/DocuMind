@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { AuthShell, Field } from "./Login";
 
 export default function ResetPassword() {
@@ -22,7 +22,7 @@ export default function ResetPassword() {
       toast.success(r.message || "Password updated");
       navigate("/login");
     } catch (err) {
-      toast.error(err?.response?.data?.detail || "Could not reset password");
+      toast.error(apiError(err, "Could not reset password"));
     } finally {
       setBusy(false);
     }

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../lib/auth";
+import { apiError } from "../lib/api";
 import GoogleButton from "../components/GoogleButton";
 import { LOGIN } from "../constants/testIds/auth";
 
@@ -13,8 +14,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const errMsg = (e) =>
-    e?.response?.data?.detail || "Something went wrong. Please try again.";
+  const errMsg = (e) => apiError(e, "Something went wrong. Please try again.");
 
   const submit = async (e) => {
     e.preventDefault();

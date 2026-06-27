@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { useCatalog, iconForName } from "../lib/catalog";
 import DocumentViewer from "../components/DocumentViewer";
 import QualityScore from "../components/QualityScore";
@@ -65,7 +65,7 @@ export default function Generator() {
       setCheck(out);
       toast.success(`Completeness: ${out.completeness_score}%`);
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Could not check completeness");
+      toast.error(apiError(e, "Could not check completeness"));
     } finally {
       setChecking(false);
     }
@@ -84,7 +84,7 @@ export default function Generator() {
       toast.success("Document generated");
     } catch (e) {
       console.error(e);
-      toast.error(e?.response?.data?.detail || "Generation failed");
+      toast.error(apiError(e, "Generation failed"));
     } finally {
       setGenerating(false);
     }

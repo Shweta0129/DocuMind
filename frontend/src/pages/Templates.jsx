@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { LayoutTemplate, Upload, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,7 +30,7 @@ export default function Templates() {
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Upload failed");
+      toast.error(apiError(e, "Upload failed"));
     } finally { setUploading(false); }
   };
 

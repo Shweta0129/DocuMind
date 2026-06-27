@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { AuthShell, Field } from "./Login";
 import { LOGIN } from "../constants/testIds/auth";
 
@@ -18,7 +18,7 @@ export default function ForgotPassword() {
       setSent(true);
       toast.success(r.message || "Check your email");
     } catch (err) {
-      toast.error(err?.response?.data?.detail || "Something went wrong");
+      toast.error(apiError(err, "Something went wrong"));
     } finally {
       setBusy(false);
     }

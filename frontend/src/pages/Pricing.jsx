@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../lib/api";
+import { api, apiError } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { toast } from "sonner";
 import { Check, Sparkles, Crown } from "lucide-react";
@@ -67,7 +67,7 @@ export default function Pricing() {
       rzp.on("payment.failed", () => toast.error("Payment failed or cancelled."));
       rzp.open();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Could not start checkout.");
+      toast.error(apiError(e, "Could not start checkout."));
     } finally {
       setBusy("");
     }

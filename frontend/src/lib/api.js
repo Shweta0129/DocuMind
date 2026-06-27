@@ -38,6 +38,25 @@ client.interceptors.response.use(
   }
 );
 
+// Normalize any axios/HTTP error into a displayable string. FastAPI 422s put an
+// ARRAY of objects in `detail` (and 4xx can put an object) — passing that to a
+// React renderer (toast/JSX) throws "objects are not valid as a React child"
+// and white-screens the app. Always return a plain string.
+export function apiError(e, fallback = "Something went wrong. Please try again.") {
+  const d = e?.response?.data?.detail;
+  if (typeof d === "string" && d.trim()) return d;
+  if (Array.isArray(d)) {
+    const msg = d
+      .map((x) => (typeof x === "string" ? x : x?.msg))
+      .filter(Boolean)
+      .join("; ");
+    if (msg) return msg;
+  } else if (d && typeof d === "object" && (d.msg || d.message)) {
+    return d.msg || d.message;
+  }
+  return fallback;
+}
+
 export const api = {
   // auth
   register: (payload) => client.post(`/auth/register`, payload).then(r => r.data),
