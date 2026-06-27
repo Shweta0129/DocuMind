@@ -39,6 +39,50 @@ def _extract_json(raw: str) -> Dict[str, Any]:
         raise
 
 
+# Models (esp. Llama) sometimes emit Mermaid diagrams inline inside a sentence,
+# collapsed onto one line, and/or with Unicode arrows (⟶ → ⇒) instead of the
+# ASCII `-->` Mermaid requires. The frontend only renders a ```mermaid fence that
+# sits on its own line with valid syntax, so those malformed blocks show as raw
+# text. We repair them here so the viewer, PDF and DOCX exports all get clean
+# Mermaid. Run on every generated section before it is stored.
+_MERMAID_ARROWS = {
+    "⟶": "-->", "→": "-->", "➝": "-->", "➞": "-->", "➜": "-->",
+    "⇒": "-->", "⟹": "-->", "↦": "-->", "⟼": "-->", "—>": "-->", "–>": "-->",
+}
+_MERMAID_RE = re.compile(r"```\s*mermaid\b(.*?)```", re.DOTALL | re.IGNORECASE)
+
+
+def _normalize_mermaid_body(body: str) -> str:
+    b = body.strip()
+    for uni, ascii_arrow in _MERMAID_ARROWS.items():
+        b = b.replace(uni, ascii_arrow)
+    if "\n" in b:
+        return b  # already multi-line — trust the model's formatting
+    # Single-line flowchart/graph: break the declaration and each statement onto
+    # its own line so Mermaid can parse it.
+    m = re.match(r"^(flowchart|graph)\s+(TB|TD|BT|RL|LR)\b\s*", b, re.IGNORECASE)
+    if not m:
+        return b  # other diagram types: leave as-is rather than risk corrupting
+    decl, rest = b[:m.end()].strip(), b[m.end():]
+    # A new statement begins where a node's closing shape (] } )) is followed by
+    # an identifier that starts the next edge.
+    rest = re.sub(
+        r"([\]\}\)])\s+(?=[A-Za-z0-9_]+\s*(?:\[|\{|\(|-->|---|--x|==>|\|))",
+        r"\1\n", rest,
+    )
+    return decl + "\n" + rest.strip()
+
+
+def _normalize_mermaid(content: str) -> str:
+    if not content or "```" not in content:
+        return content
+    out = _MERMAID_RE.sub(
+        lambda mt: "\n\n```mermaid\n" + _normalize_mermaid_body(mt.group(1)) + "\n```\n\n",
+        content,
+    )
+    return re.sub(r"\n{3,}", "\n\n", out).strip()
+
+
 async def _call(system: str, user: str, session_id: Optional[str] = None) -> str:
     # session_id kept for signature compatibility; the stateless provider layer
     # does not need it (each workflow sends the full context it requires).
@@ -170,6 +214,7 @@ flowchart TD
   C -->|No| E[Review]
 ```
 Use flowchart/graph for processes & architecture, sequenceDiagram for interactions, erDiagram for data models. Keep diagrams to ~5-12 nodes. Do NOT force a diagram into every section — only where it adds real value (often Overview, Architecture, Process, or Workflow sections). Only ever produce Mermaid; never reference an external image.
+MERMAID SYNTAX RULES (strict): the opening ```mermaid fence and the closing ``` MUST each be on their own line; never embed a diagram inside a sentence. Put the diagram declaration (e.g. `flowchart TD`) on its own line and EACH node/edge statement on its own line. Use ONLY ASCII arrows `-->` (and `-->|label|`); never use Unicode arrows like ⟶ → ⇒.
 
 FORMAT:
 - Use Markdown inside content (bold, tables, lists, mermaid). Follow the EXACT section order and headings provided.
@@ -223,6 +268,9 @@ Return ONLY the JSON object."""
     data.setdefault("sections", [])
     data.setdefault("completeness_score", 75)
     data.setdefault("suggestions", [])
+    for s in data["sections"]:
+        if isinstance(s, dict) and isinstance(s.get("content"), str):
+            s["content"] = _normalize_mermaid(s["content"])
     return data
 
 
@@ -282,4 +330,7 @@ Current content:
 ---
 
 Rewrite/expand the section. Keep the same heading. Output JSON only."""
-    return _extract_json(await _call(IMPROVE_SYSTEM, user))
+    data = _extract_json(await _call(IMPROVE_SYSTEM, user))
+    if isinstance(data.get("improved_content"), str):
+        data["improved_content"] = _normalize_mermaid(data["improved_content"])
+    return data
