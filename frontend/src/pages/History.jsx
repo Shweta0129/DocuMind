@@ -37,7 +37,10 @@ export default function History() {
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [sort, type, category, industry]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sort, type, category, industry]);
 
   const onSearch = (e) => { e.preventDefault(); load(); };
 
